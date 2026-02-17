@@ -1,2 +1,0 @@
-# ISMStudy
-Study Guide

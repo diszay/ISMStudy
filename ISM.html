@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ISM v5 Study App</title>
+  
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useCallback } = React;
+
+    // ─── DATA ──────────────────────────────────────────────────────────────────
+    // Retained all your original 8 modules and questions
+    const MODULES = [
+      {
+        id: "m1", title: "Digital Transformation & Business Drivers", tag: "MOD 1–2", color: "#0F4C81", accent: "#4A9FD4",
+        questions: [
+          { q: "Which modern data center characteristic allows IT to function as a utility by delivering resources based on a self-service model?", opts: ["Virtualization","Orchestrated management","IT-as-a-Service","On-demand scalability"], ans: 2, rationale: "IT-as-a-Service enables IT to function as a utility by adopting the resource delivery 'as-a-service' paradigm." },
+          { q: "In the context of Big Data, what does 'Velocity' specifically refer to?", opts: ["The total size of the dataset in Petabytes","The rate at which data is produced and the speed required for processing","The diversity of data formats (structured vs. unstructured)","The reliability and accuracy of the data source"], ans: 1, rationale: "Velocity is the rate at which data is produced, changes, and how fast it must be processed." },
+          { q: "What is the primary benefit of Edge Computing in an IoT environment?", opts: ["Centralizing all data for better security management","Reducing bandwidth costs by performing analytics close to the data source","Replacing the need for a central cloud or data center","Increasing the complexity of the data grid"], ans: 1, rationale: "Edge computing performs analytics locally to send only meaningful data to the cloud, saving bandwidth and reducing transmission costs." },
+          { q: "Which technology provides the 'Ultra-low latency' required for 5G ecosystems?", opts: ["4G LTE backhaul","5G mobile technology","Traditional HDD storage","SATA interfaces"], ans: 1, rationale: "5G features and reliability enable ultra-low latency for technical and business innovation." },
+          { q: "Why is Machine Learning critical for managing modern voluminous data?", opts: ["It eliminates the need for any human oversight","It allows machines to adapt to new datasets and produce reliable outputs based on previous experiences","It reduces the physical footprint of the data center","It converts unstructured data into structured SQL tables"], ans: 1, rationale: "ML allows machines to adapt to new datasets by learning from previous experiences to produce reliable outputs." },
+          { q: "Which modern data center characteristic helps improve business agility using predefined workflows to automate coordination?", opts: ["Virtualization","Orchestrated management","Continuous availability","Multi-layered security"], ans: 1, rationale: "Orchestrated management uses predefined workflows to automate the arrangement and coordination of component functions." },
+          { q: "What is a key driver for organizations undertaking digital transformation?", opts: ["To eliminate all management costs","To innovate more quickly and meet customer expectations","To reduce the number of employees","To move away from software-based analysis"], ans: 1, rationale: "Organizations adopt digital transformation to meet customer expectations and innovate quickly using smarter products and analytics." },
+          { q: "Cloud computing provides 'ubiquitous' access. What does this mean in a storage context?", opts: ["Access is restricted to internal employees only","Access is available from anywhere and anytime via the network","Data is stored on a single physical disk for safety","Only block-level data can be accessed"], ans: 1, rationale: "Cloud computing enables ubiquitous, convenient, on-demand network access to a shared pool of resources." },
+        ]
+      },
+      {
+        id: "m2", title: "Modern Data Center Environment", tag: "MOD 3", color: "#1A3A5C", accent: "#3D9970",
+        questions: [
+          { q: "What defines Hyperconverged Infrastructure (HCI) compared to Converged Infrastructure (CI)?", opts: ["CI is software-defined; HCI is hardware-defined","HCI is software-defined and integrates compute, storage, and networking into a single distributed platform","CI is more flexible and scalable than HCI","HCI requires separate management tools for every component"], ans: 1, rationale: "HCI combines compute, storage, and networking into a distributed platform managed by software, making it more flexible than CI." },
+          { q: "In a Software-Defined Data Center (SDDC), which plane is responsible for making decisions such as where to forward a packet?", opts: ["Data plane","Management plane","Control plane","Service plane"], ans: 2, rationale: "The control layer (control plane) is responsible for making decisions such as packet forwarding." },
+          { q: "Which compute system type is designed to be plugged into a chassis that provides power, cooling, and connectivity?", opts: ["Tower","Rack-mounted","Blade","Desktop"], ans: 2, rationale: "A blade compute system consists of an electronic circuit board (the blade) that is plugged into a chassis." },
+          { q: "What is the primary function of a Hypervisor?", opts: ["To encrypt data at rest","To provide a software abstraction layer that allows multiple VMs to run on a single physical system","To manage the physical cooling systems of a data center","To act as the primary storage controller for a SAN"], ans: 1, rationale: "A hypervisor is the software that abstracts physical resources for virtual machines." },
+          { q: "Which approach to building a data center allows for 'best-of-breed' component selection?", opts: ["Hyperconverged approach","Do-It-Yourself (DIY) approach","Vendor-ready solution","Data Center as a Service"], ans: 1, rationale: "The DIY approach utilizes products from respective leading vendors and provides specific functions with more options." },
+          { q: "In the 'Greenfield' method of data center design, what is a primary advantage?", opts: ["Using existing legacy equipment to save costs","Designing a new infrastructure specifically for a purpose without legacy constraints","Integrating new software with 20-year-old hardware","Lowering the initial acquisition cost"], ans: 1, rationale: "Greenfield environments enable architects to design exactly what is required using new infrastructure built specifically for a purpose." },
+          { q: "What does the 'Data Plane' perform in an SDDC architecture?", opts: ["Setting policies","Managing user accounts","Handling the actual data transfer/forwarding based on control plane instructions","Creating the self-service portal"], ans: 2, rationale: "The data plane (infrastructure layer) is where the actual data resides and is forwarded based on the control plane's logic." },
+        ]
+      },
+      {
+        id: "m3", title: "Intelligent Storage Systems (ISS)", tag: "MOD 4", color: "#2D1B69", accent: "#9B59B6",
+        questions: [
+          { q: "How does NVMe reduce latency compared to traditional SCSI stacks?", opts: ["By using mechanical arms","By providing a streamlined software interface for PCIe SSDs and taking advantage of parallelism","By converting block data into objects","By reducing the speed of the CPU"], ans: 1, rationale: "NVMe eliminates the SCSI bottleneck and takes advantage of microsecond latency provided by all-flash arrays." },
+          { q: "Which RAID level provides the highest protection by supporting two simultaneous disk failures?", opts: ["RAID 0","RAID 5","RAID 6","RAID 1"], ans: 2, rationale: "RAID 6 includes a second distributed parity element to enable survival if up to two disk failures occur." },
+          { q: "Calculate the write penalty for a RAID 5 configuration.", opts: ["2","4","6","0"], ans: 1, rationale: "In RAID 5, every write manifests as four I/O operations (two reads and two writes)." },
+          { q: "What is the primary characteristic of Storage Class Memory (SCM)?", opts: ["It is faster than DRAM","It offers memory-like performance (faster than flash) at a storage-like cost","It is a volatile form of memory","It is only used for long-term archiving on tape"], ans: 1, rationale: "SCM features memory-like performance at storage-like cost and is over 10× faster than flash." },
+          { q: "In a RAID 1+0 setup, if one drive in a mirrored pair fails, what happens to the data?", opts: ["All data in the RAID set is lost","Data is retrieved from the surviving mirror in the pair","The parity bit is used to reconstruct the data","The system shuts down to prevent corruption"], ans: 1, rationale: "RAID 1+0 allows data retrieval as long as one disk in each mirrored pair is functional." },
+          { q: "What is the Write Penalty of RAID 6?", opts: ["2","4","6","1"], ans: 2, rationale: "In RAID 6, every write manifests as six I/O operations (three reads and three writes)." },
+          { q: "Which RAID technique spreads data across multiple drives to use them in parallel?", opts: ["Mirroring","Parity","Striping","Sparing"], ans: 2, rationale: "Striping spreads data across multiple drives to use them in parallel, increasing performance." },
+          { q: "What is a 'Stripe' in a RAID set?", opts: ["A single disk in the array","A set of aligned 'strips' that spans across all disks in the RAID set","The mathematical sum of all data","The replacement disk for a failed unit"], ans: 1, rationale: "The set of aligned strips that spans across all the disks within the RAID set is called a stripe." },
+          { q: "Why is RAID 1 considered expensive?", opts: ["It requires complex parity calculations","It requires twice the storage capacity of the data being stored (50% usable capacity)","It has the highest write penalty (penalty of 6)","It can only use SATA drives"], ans: 1, rationale: "Mirroring (RAID 1) requires twice the storage capacity and provides only 50% usable capacity." },
+          { q: "Which component of an ISS performs I/O interface functions and relieves the compute processor?", opts: ["Storage enclosure","Host Bus Adapter (HBA)","Disk platter","Power supply"], ans: 1, rationale: "An HBA performs I/O interface functions, relieving the processor from I/O processing workload." },
+          { q: "What is the minimum number of disks required for RAID 5?", opts: ["2","3","4","5"], ans: 1, rationale: "RAID 5 requires a minimum of three disks." },
+          { q: "What is the Usable Capacity formula for RAID 5?", opts: ["(n-2)/n","50%","[(n-1)/n] × 100","n × 100"], ans: 2, rationale: "The available storage capacity for RAID 5 is calculated as [(n-1)/n] × 100." },
+          { q: "In storage tiering, where should 'frequently accessed' data be stored for optimal performance?", opts: ["Tier 3 (SATA)","Tier 2 (SAS)","Tier 1 or Tier 0 (SSD/SCM/DRAM)","Optical tape"], ans: 2, rationale: "High-performance SSDs (Tier 1/0) are used to keep frequently accessed data." },
+          { q: "What is a 'Thick LUN'?", opts: ["A LUN that uses virtual provisioning to save space","A LUN created by traditional storage provisioning that pre-allocates all physical storage","A LUN that can only store object data","A LUN that exists only in cache"], ans: 1, rationale: "LUNs created by traditional storage provisioning methods are termed thick LUNs to distinguish them from virtual/thin LUNs." },
+          { q: "What is the benefit of 'Sub-LUN Tiering'?", opts: ["Moving an entire LUN to a different tier","Moving specific active blocks (sub-portions) of a LUN to a higher tier while keeping inactive blocks on lower tiers","Deleting unused LUNs","Encrypting only a portion of the disk"], ans: 1, rationale: "Sub-LUN tiering moves active data segments within a LUN to Tier 0 for performance while moving inactive portions to lower tiers." },
+        ]
+      },
+      {
+        id: "m4", title: "Block, File & Object Storage", tag: "MOD 5", color: "#1B4332", accent: "#52B788",
+        questions: [
+          { q: "What is a key attribute of Block-based storage?", opts: ["Data is accessed via a global namespace","The file system is managed by the storage system","LUNs appear to the server as internal physical disks","Data is stored with extensive custom metadata"], ans: 2, rationale: "Block-based storage system LUNs appear to the server as internal physical disks." },
+          { q: "Which storage architecture uses a 'Flat Address Space' instead of a hierarchy?", opts: ["Block storage","File-based storage (NAS)","Object-based storage (OSD)","Internal DAS"], ans: 2, rationale: "An OSD stores data using a flat address space where objects exist at the same level." },
+          { q: "What is the purpose of an 'Object ID'?", opts: ["To determine the physical sector of the HDD","To act as a unique identifier for retrieval in a flat address space","To identify the user's login credentials","To count the number of blocks in a stripe"], ans: 1, rationale: "The Object ID is used to access the storage location for the object and its metadata in a flat repository." },
+          { q: "Unified Storage provides access to which types of data?", opts: ["Block only","Block and File only","Block, File, and Object","Object only"], ans: 2, rationale: "Unified storage is a single system that consolidates block-level, file-level, and object-level access." },
+          { q: "What problem does a 'Scale-out NAS' address?", opts: ["The inability to use IP networks","Performance bottlenecks and capacity limits of a single controller by pooling multiple nodes","The high cost of SATA drives","The lack of encryption"], ans: 1, rationale: "Scale-out NAS achieves high scalability by pooling multiple nodes into a clustered system." },
+          { q: "In an OSD, what is stored in 'Metadata'?", opts: ["The raw binary data only","Contextual information like creation date, owner, and custom attributes","The RAID parity bit","The operating system's kernel"], ans: 1, rationale: "Metadata adds important information associated with the data, such as creation date and owner." },
+          { q: "What is the function of an 'OSD Gateway'?", opts: ["To convert object data into physical tape","To provide a translation layer between traditional protocols (iSCSI/NFS) and cloud object storage (REST/SOAP)","To act as a physical firewall for the SAN","To manage the electricity of the storage array"], ans: 1, rationale: "OSD gateways provide a translation layer between iSCSI, FC, NFS, CIFS and cloud-based object storage interfaces." },
+          { q: "Which protocol is commonly used to access object storage via web applications?", opts: ["SCSI","Fibre Channel","REST/SOAP APIs","SMB/CIFS only"], ans: 2, rationale: "Most object-based storage systems support REST or SOAP interfaces for web and mobile access." },
+          { q: "What does a 'Scale-up' architecture involve?", opts: ["Adding more nodes to a cluster","Adding more capacity (disks) to an existing controller until it reaches its limit","Using only cloud-based storage","Switching from HDD to SSD"], ans: 1, rationale: "'Scale-up' involves increasing the capacity of a fixed unit, vs scale-out which adds nodes." },
+          { q: "In unified storage, what is the 'Utilization Penalty'?", opts: ["The power consumed by redundant fans","Stranded capacity in separate storage silos that cannot be shared","The time taken to calculate RAID parity","The cost of licensing multiple GUIs"], ans: 1, rationale: "Unified storage eliminates the capacity utilization penalty associated with separate block, file, and object systems." },
+        ]
+      },
+      {
+        id: "m5", title: "SAN Connectivity: FC, IP, FCoE, NVMe-oF", tag: "MOD 6–7", color: "#4A1942", accent: "#E74C8B",
+        questions: [
+          { q: "What is the function of an 'E_Port' in an FC SAN?", opts: ["To connect a host to a switch","To connect a storage system to a switch","To provide an Interswitch Link (ISL) between two switches","To act as a generic port for any device"], ans: 2, rationale: "An E_Port (Expansion Port) forms a connection between two FC switches via an ISL." },
+          { q: "Which protocol is used to extend FC SANs over long distances by tunneling through IP networks?", opts: ["iSCSI","FCoE","FCIP","NVMe/TCP"], ans: 2, rationale: "FCIP is a tunneling protocol used to interconnect distributed FC SAN islands over an IP network for long distances." },
+          { q: "What is the primary role of a 'Converged Network Adapter' (CNA)?", opts: ["To speed up HDD rotations","To replace both a NIC and an FC HBA by providing LAN and FC SAN connectivity through one port","To act as a gateway for iSCSI","To provide power to the switch"], ans: 1, rationale: "A CNA replaces the NIC and FC HBA, connecting to both FC SAN and Ethernet LAN through a single port." },
+          { q: "What is 'Zoning' in an FC SAN?", opts: ["Defining the physical temperature zones of a rack","Creating a logical private path between node ports to restrict communication","Spreading data across disks","Calculating the distance between data centers"], ans: 1, rationale: "Zoning is a logical private path between node ports in a fabric." },
+          { q: "Which NVMe-oF addressing convention is used to identify a target?", opts: ["IQN","WWN","NQN","IP Address"], ans: 2, rationale: "NVMe-oF uses the NVMe Qualified Name (NQN) convention to identify a target." },
+          { q: "What is a 'WWN' (World Wide Name)?", opts: ["A 64-bit unique identifier for FC components","The website address of the storage vendor","A protocol for object storage","The name of the data center"], ans: 0, rationale: "WWN refers to the unique 64-bit identifier used for FC device identification." },
+          { q: "What is the Write Penalty for RAID 1?", opts: ["4","2","1","6"], ans: 1, rationale: "In RAID 1, every write manifests as two I/O operations (two writes to the mirror)." },
+          { q: "In FCoE, what happens to the Fibre Channel frame?", opts: ["It is converted into an iSCSI packet","It is encapsulated unchanged into an Ethernet frame","It is stripped of its header","It is compressed to half its size"], ans: 1, rationale: "FCoE encapsulates unchanged FC frames into Ethernet frames as the payload." },
+          { q: "Which port type on an FC switch can function as either an E_Port or an F_Port?", opts: ["N_Port","G_Port","NI_Port","Trunk Port"], ans: 1, rationale: "A G_Port (Generic Port) can operate as either an E_Port or an F_Port and determines its functionality during initialization." },
+          { q: "What is an 'ISL' (Interswitch Link)?", opts: ["A link between a host and a switch","A link between a switch and a storage array","A link that connects two switches together","A software connection between two VMs"], ans: 2, rationale: "ISLs are established between E_Ports to expand the fabric." },
+          { q: "Which SAN topology uses departmental switches at the edge and enterprise directors at the core?", opts: ["Single Switch","Full Mesh","Core-Edge","Partial Mesh"], ans: 2, rationale: "Core-edge topology uses departmental switches at the edge and enterprise directors at the core to increase connectivity while conserving ports." },
+          { q: "Why would an organization choose iSCSI over FC SAN?", opts: ["It is much faster than 128 Gb/s FC","It is more cost-effective as it uses existing IP/Ethernet infrastructure and skills","It does not require any security","It only works with tape drives"], ans: 1, rationale: "iSCSI is more cost-effective than FC because users can leverage their existing IP network and management skills." },
+          { q: "What is the function of the 'FC-2' layer in the FC protocol stack?", opts: ["Mapping interfaces","Routing, framing, and flow control","Bit and frame synchronization","Defining the physical media/cables"], ans: 1, rationale: "The FC-2 layer handles routing, flow control, and frame structure." },
+          { q: "What is 'Link Aggregation' (Port-Channel)?", opts: ["Splitting one link into four","Combining multiple physical ISLs into a single logical link for higher throughput","Deleting redundant links to save power","Assigning one port to two different hosts"], ans: 1, rationale: "Link aggregation combines multiple ISLs into a logical link to increase throughput and ensure even utilization." },
+          { q: "Which protocol allows NVMe to be transported over a standard Ethernet network using TCP?", opts: ["FC-NVMe","NVMe/TCP","iSCSI","FCoE"], ans: 1, rationale: "NVMe/TCP enables an end-to-end NVMe-oF solution using TCP over an Ethernet fabric." },
+        ]
+      },
+      {
+        id: "m6", title: "Software-Defined Storage & Networking", tag: "MOD 8", color: "#1C3144", accent: "#F39C12",
+        questions: [
+          { q: "In Software-Defined Networking (SDN), what is the 'Infrastructure Layer'?", opts: ["The layer that sets business policies","The layer where physical networking devices reside and perform data forwarding","The layer that manages the hypervisors","The GUI for the administrator"], ans: 1, rationale: "The infrastructure layer (data plane) is responsible for packet forwarding as instructed by the control layer." },
+          { q: "What is a major driver for Software-Defined Storage (SDS)?", opts: ["To lock users into one hardware vendor","To pool heterogeneous storage resources and automate allocation based on policy","To eliminate the need for any storage software","To force all data onto HDD devices"], ans: 1, rationale: "SDS pools heterogeneous resources and allocates them based on policy, reducing complexity and avoiding vendor lock-in." },
+          { q: "Which SDN layer is responsible for the 'Control Logic'?", opts: ["Application layer","Control layer","Infrastructure layer","Physical layer"], ans: 1, rationale: "The control layer is responsible for the decisions and logic like packet forwarding." },
+          { q: "Can SDS run on 'Commodity Hardware'?", opts: ["No, it requires specialized proprietary arrays","Yes, it allows using industry-standard hardware to build storage pools","Only if the hardware is older than 5 years","It only runs in the public cloud"], ans: 1, rationale: "SDS enables the use of heterogeneous (including commodity) resources by abstracting them through software." },
+          { q: "What is 'Abstraction' in the context of SDS?", opts: ["Hiding the physical characteristics of storage from the user","Deleting data after 30 days","Mapping every block to a physical tape","Increasing the cost of the hardware"], ans: 0, rationale: "Abstraction is a core concept of SDDC/SDS that decouples management from the underlying physical infrastructure." },
+        ]
+      },
+      {
+        id: "m7", title: "Business Continuity & Data Protection", tag: "MOD 9–10", color: "#1A1A2E", accent: "#E94560",
+        questions: [
+          { q: "What does 'RPO' (Recovery Point Objective) define?", opts: ["The time it takes to recover a system","The maximum amount of data loss a business can endure (measured in time)","The total cost of the backup software","The number of employees required for a restore"], ans: 1, rationale: "RPO defines the amount of data loss that a business can endure." },
+          { q: "What does 'RTO' (Recovery Time Objective) define?", opts: ["The point-in-time data is recovered to","The duration of time within which systems must be recovered after an outage","The speed of the WAN link","The age of the backup tapes"], ans: 1, rationale: "RTO is the time within which systems/applications must be recovered." },
+          { q: "What is 'Erasure Coding'?", opts: ["Deleting data once it is no longer needed","A space-optimal redundancy method that divides data into segments and coding fragments (n = m + k)","Mirroring data three times","Encoding data into Morse code for security"], ans: 1, rationale: "Erasure coding provides space-optimal redundancy by dividing data into m segments and k coding fragments." },
+          { q: "In the erasure coding example m=9, k=3, how many drive failures can the system survive?", opts: ["9","3","12","1"], ans: 1, rationale: "The system can survive k drive failures; in this case, k=3." },
+          { q: "What is 'Dynamic Disk Sparing'?", opts: ["Manually replacing a drive every year","Automatically replacing a failed drive with a pre-configured spare to protect against data loss","Using one disk for two different RAID sets","Increasing the speed of a disk during peak hours"], ans: 1, rationale: "Dynamic disk sparing automatically replaces a failed drive with a spare drive to protect against data loss." },
+          { q: "What is a 'Snapshot'?", opts: ["A physical photograph of the data center","A point-in-time (PIT) copy of a LUN or file system","A full backup to a tape drive","A way to increase disk capacity"], ans: 1, rationale: "Snapshots are point-in-time (PIT) versions of data used for protection." },
+          { q: "Local Replication refers to copying data where?", opts: ["To a data center on another continent","Within the same storage system or data center","To a public cloud only","To a user's USB drive"], ans: 1, rationale: "Local replication involves creating PIT copies within the same array or site." },
+          { q: "Why is 'In-order delivery' important in SAN replication?", opts: ["To make the data easier to read","To ensure data consistency at the target site, especially for database applications","To reduce the power usage of the link","To identify the owner of the data"], ans: 1, rationale: "Protocols like FC and TCP (used in FCIP) ensure in-order delivery, which is required for normal SAN operation and consistency." },
+          { q: "What is the main goal of Business Continuity (BC)?", opts: ["To double the company's revenue","To ensure operations continue during and after an outage","To move all servers to the cloud","To eliminate all IT employees"], ans: 1, rationale: "BC is the practice of ensuring operations continue during an outage." },
+          { q: "What is 'Disaster Recovery' (DR)?", opts: ["A set of policies to restore IT infrastructure after a major failure or natural disaster","Deleting old data","Buying new laptops for employees","Moving a rack to a different room"], ans: 0, rationale: "DR involves policies and procedures for restoring IT after a disaster." },
+        ]
+      },
+      {
+        id: "m8", title: "Security & Storage Management", tag: "MOD 11–12", color: "#1B0000", accent: "#E55A00",
+        questions: [
+          { q: "Which statement is true regarding Role-Based Access Control (RBAC)?", opts: ["One person should be able to both specify and carry out an action","Maximum privileges are always assigned to every user","No individual can both specify an action and carry it out (separation of duties)","RBAC is only used for cloud storage"], ans: 2, rationale: "A key principle of RBAC is the separation of duties, meaning no individual can both specify and carry out an action." },
+          { q: "What is 'Authentication'?", opts: ["Restricting what a user can do","The process of verifying a user's identity credentials","Logging all transactions for auditing","Creating a new IT service"], ans: 1, rationale: "Authentication is the process to ensure that users or assets verify their identity credentials." },
+          { q: "In storage security, what is 'Governance'?", opts: ["Verifying a password","Logging transactions","Determining the purpose, strategy, and operational rules by which companies are directed","Encrypting a disk"], ans: 2, rationale: "Governance determines the purpose, strategy, and rules by which companies are managed." },
+          { q: "What is 'Auditing' in a storage environment?", opts: ["Deleting old files","The logging of all transactions to assess the effectiveness of security mechanisms","Assigning IP addresses","Buying new hardware"], ans: 1, rationale: "Auditing is the logging of all transactions for assessing security effectiveness." },
+          { q: "What information does 'Infrastructure Discovery' identify?", opts: ["The names of all employees","Configuration, connectivity, capacity, and dependencies (physical-to-virtual)","The stock price of the vendor","The weather at the data center site"], ans: 1, rationale: "Infrastructure discovery identifies configuration, connectivity, capacity, and physical-to-virtual dependencies." },
+          { q: "What is the purpose of a 'Chargeback Report'?", opts: ["To report resource consumption per business unit for billing","To report if a hacker entered the system","To list the serial numbers of all disks","To report the temperature of the server room"], ans: 0, rationale: "A chargeback report reports resource consumption per business unit." },
+          { q: "Which management process determines the optimal amount of resources required for IT operations?", opts: ["Problem management","Availability management","Capacity management","Incident management"], ans: 2, rationale: "Capacity management determines the optimal amount of resources required to meet IT needs." },
+          { q: "What is the goal of 'Problem Management'?", opts: ["To fix a single user's mouse","To prevent incidents that share common symptoms or root causes from reoccurring","To buy more storage","To create a new VM"], ans: 1, rationale: "Problem management prevents incidents with common root causes from reoccurring." },
+          { q: "What is 'Multi-factor Authentication' (MFA)?", opts: ["Using two different passwords","Using more than one factor (something you know and something you have) to verify identity","Having two people log in at the same time","Logging in from two different countries"], ans: 1, rationale: "MFA requires more than one factor to verify identity." },
+          { q: "What is 'Data at Rest Encryption' (D@RE)?", opts: ["Encrypting data as it travels over the internet","Securing data specifically when it is stored on physical media","Deleting data when it is not being used","Hiding the physical disk in a safe"], ans: 1, rationale: "D@RE secures data while it is residing on storage media." },
+          { q: "Which 'Plane' in an SDDC architecture is used for configuring the system and changing policies?", opts: ["Control plane","Management plane","Data plane","Service plane"], ans: 1, rationale: "The management plane is used for configuring the system and changing policies." },
+          { q: "What is an 'SLA' (Service Level Agreement)?", opts: ["A type of storage cable","A contract that defines the parameters of service between a provider and a user","A RAID level","A security password"], ans: 1, rationale: "An SLA defines the parameters of service and requirements between parties." },
+          { q: "In storage management, what does 'Availability Management' ensure?", opts: ["That there is enough disk space","That IT resources are available to meet business requirements defined in SLAs","That the data is encrypted","That the vendor is paid"], ans: 1, rationale: "Availability management ensures that IT resources meet the availability requirements of the business." },
+          { q: "What is 'Change Management' responsible for?", opts: ["Replacing the batteries in the UPS","Standardizing the process for efficient handling of changes to the IT infrastructure","Counting the change in the company's vending machine","Changing the administrator's password every day"], ans: 1, rationale: "Change management provides standardized methods for efficient handling of all changes to infrastructure." },
+          { q: "'Configuration Items' (CIs) are tracked in which management process?", opts: ["Performance management","Configuration management","Security management","Financial management"], ans: 1, rationale: "Configuration management tracks and manages information about the components (CIs) of the infrastructure." },
+        ]
+      }
+    ];
+
+    const ALL_QUESTIONS = MODULES.flatMap((m, mi) => m.questions.map((q, qi) => ({ ...q, moduleIndex: mi, moduleTitle: m.title, moduleTag: m.tag, moduleColor: m.color, moduleAccent: m.accent })));
+
+    const GLOSSARY = {
+      "Architecture & Devices": [
+        { term: "ISS", def: "Intelligent Storage System — enterprise storage array with controllers, cache, and DAEs providing data services" },
+        { term: "DAS", def: "Direct-Attached Storage — storage connected directly to a single server; cannot be shared" },
+        { term: "NAS", def: "Network-Attached Storage — file-level storage using NFS/CIFS/SMB over IP Ethernet" },
+        { term: "SAN", def: "Storage Area Network — high-speed block-level storage network; storage exists independently of servers" },
+        { term: "OSD", def: "Object-Based Storage Device — stores data as objects in a flat address space; accessed via REST/S3" },
+        { term: "DAE", def: "Disk Array Enclosure — physical shelf within a storage array where drives are installed" },
+        { term: "HCI", def: "Hyperconverged Infrastructure — single platform combining compute, storage, virtualization, and networking" },
+        { term: "SDS", def: "Software-Defined Storage — storage intelligence decoupled from hardware; runs on commodity servers" },
+        { term: "SCM", def: "Storage Class Memory — non-volatile memory bridging the gap between DRAM and NAND flash" },
+        { term: "LUN", def: "Logical Unit Number — logical partition of an ISS presented to a compute system for data access" },
+        { term: "HDD", def: "Hard Disk Drive — spinning magnetic storage limited by seek time and rotational latency" },
+        { term: "SSD", def: "Solid-State Drive — flash-based non-volatile storage; eliminates seek time and rotational latency" },
+      ],
+      "Protocols & Connectivity": [
+        { term: "FC", def: "Fibre Channel — lossless high-speed block protocol; uses B2B credits; guaranteed in-order delivery" },
+        { term: "FCoE", def: "Fibre Channel over Ethernet — FC SAN traffic over Converged Enhanced Ethernet; requires CNA" },
+        { term: "FCIP", def: "Fibre Channel over IP — tunneling protocol extending FC SANs across IP WANs; used for DR" },
+        { term: "iSCSI", def: "Internet SCSI — block storage protocol encapsulating SCSI commands in TCP/IP packets" },
+        { term: "NVMe", def: "Non-Volatile Memory Express — PCIe-native protocol for flash; 65,535 queues vs SATA's 1" },
+        { term: "NVMe-oF", def: "NVMe over Fabrics — NVMe protocol transported over FC (FC-NVMe) or TCP/IP (NVMe/TCP)" },
+        { term: "HBA", def: "Host Bus Adapter — adapter enabling a compute system to connect to an FC SAN fabric" },
+        { term: "CNA", def: "Converged Network Adapter — single adapter replacing both NIC and HBA; carries LAN and FCoE" },
+        { term: "TOE", def: "TCP Offload Engine — card offloading TCP/IP and iSCSI processing from the host CPU" },
+        { term: "SATA", def: "Serial ATA — legacy HDD/SSD interface; limited queue depth (AHCI: 1 queue, 32 commands)" },
+        { term: "SAS", def: "Serial Attached SCSI — enterprise HDD/SSD interface; higher reliability and queue depth than SATA" },
+      ],
+      "SAN Fabric Terms": [
+        { term: "N_Port", def: "Node Port — endpoint in the fabric; on server HBAs and storage array ports" },
+        { term: "F_Port", def: "Fabric Port — switch port accepting connections from N_Ports" },
+        { term: "E_Port", def: "Expansion Port — switch port forming an Interswitch Link (ISL) to another switch" },
+        { term: "G_Port", def: "Generic Port — auto-negotiates to E_Port or F_Port at link initialization" },
+        { term: "ISL", def: "Interswitch Link — physical connection between E_Ports on two FC switches, expanding the fabric" },
+        { term: "RSCN", def: "Registered State Change Notification — fabric broadcast when a device joins or leaves; restricted by zoning" },
+        { term: "VSAN", def: "Virtual SAN — logically isolated SAN partition on a physical fabric with its own zoning" },
+        { term: "WWN", def: "World Wide Name — globally unique 64-bit identifier for FC devices" },
+        { term: "WWPN", def: "World Wide Port Name — identifies a specific FC port" },
+        { term: "WWNN", def: "World Wide Node Name — identifies the FC HBA (the device)" },
+      ],
+      "Addressing & Naming": [
+        { term: "IQN", def: "iSCSI Qualified Name — globally unique identifier: iqn.YYYY-MM.com.domain:unique-id" },
+        { term: "NQN", def: "NVMe Qualified Name — NVMe-oF target identifier: nqn.YYYY-MM.com.domain:unique-id" },
+        { term: "EUI", def: "Extended Unique Identifier — alternate iSCSI naming format using IEEE 64-bit identifier" },
+        { term: "NAA", def: "Network Address Authority — naming convention enabling SCSI devices to use the same name across port types" },
+      ],
+      "RAID Quick Reference": [
+        { term: "RAID 0", def: "Striping only. No fault tolerance. Write penalty: 0. Usable: 100%" },
+        { term: "RAID 1", def: "Mirroring. Survives 1 failure. Write penalty: 2. Usable: 50%" },
+        { term: "RAID 5", def: "Striping + 1 parity. Survives 1 failure. Write penalty: 4. Usable: [(n-1)/n]×100. Min disks: 3" },
+        { term: "RAID 6", def: "Striping + 2 parity. Survives 2 failures. Write penalty: 6. Usable: [(n-2)/n]×100. Min disks: 4" },
+        { term: "RAID 1+0", def: "Mirrored stripes. Survives 1 per mirror pair. Write penalty: 2. Usable: 50%. Min disks: 4" },
+      ],
+      "Data Protection & BC": [
+        { term: "RPO", def: "Recovery Point Objective — maximum acceptable data loss after an outage; measured in time" },
+        { term: "RTO", def: "Recovery Time Objective — maximum acceptable downtime before systems must be restored" },
+        { term: "CDP", def: "Continuous Data Protection — captures every write; enables recovery to any point in time" },
+        { term: "D@RE", def: "Data at Rest Encryption — ISS data service encrypting all data written to physical drives" },
+        { term: "PIT", def: "Point-In-Time — a specific moment captured by a snapshot or replica" },
+        { term: "SLA", def: "Service Level Agreement — contract defining service parameters including RPO, RTO, and uptime" },
+        { term: "BC", def: "Business Continuity — practice of maintaining operations during an outage" },
+        { term: "DR", def: "Disaster Recovery — policies and procedures for restoring IT infrastructure after a disaster" },
+      ],
+      "Security & Access Control": [
+        { term: "CIA Triad", def: "Confidentiality, Integrity, Availability — three pillars of information security" },
+        { term: "GRC", def: "Governance, Risk, Compliance — business framework governing security policy and regulation" },
+        { term: "RBAC", def: "Role-Based Access Control — access based on assigned roles; principle of least privilege; separation of duties" },
+        { term: "IAM", def: "Identity and Access Management — managing user identifiers, authentication, and authorization" },
+        { term: "MFA", def: "Multi-Factor Authentication — requires 2+ verification factors (password + token)" },
+        { term: "OAuth", def: "Open Authorization (RFC 6749) — delegated authorization using scoped, time-limited access tokens" },
+        { term: "OpenID", def: "Open standard for authentication using trusted third-party identity providers" },
+      ],
+    };
+
+    function ISMStudyApp() {
+      const [view, setView] = useState("home");
+      const [quizMode, setQuizMode] = useState("module");
+      const [activeModule, setActiveModule] = useState(null);
+      const [currentQ, setCurrentQ] = useState(0);
+      const [selected, setSelected] = useState(null);
+      const [answered, setAnswered] = useState(false);
+      const [scores, setScores] = useState({});
+      const [sessionAnswers, setSessionAnswers] = useState([]);
+      const [showResults, setShowResults] = useState(false);
+      const [questions, setQuestions] = useState([]);
+      const [glossarySearch, setGlossarySearch] = useState("");
+      const [examTimer, setExamTimer] = useState(0);
+      const [examActive, setExamActive] = useState(false);
+      const [missedQuestions, setMissedQuestions] = useState([]);
+
+      const totalAnswered = Object.values(scores).reduce((a, s) => a + (s.correct + s.wrong), 0);
+      const totalCorrect = Object.values(scores).reduce((a, s) => a + s.correct, 0);
+
+      useEffect(() => {
+        let interval;
+        if (examActive) {
+          interval = setInterval(() => setExamTimer(t => t + 1), 1000);
+        }
+        return () => clearInterval(interval);
+      }, [examActive]);
+
+      const formatTime = (s) => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+
+      const startModuleQuiz = (module) => {
+        setActiveModule(module);
+        setQuestions(module.questions.map((q, i) => ({ ...q, originalIndex: i })));
+        setCurrentQ(0); setSelected(null); setAnswered(false);
+        setSessionAnswers([]); setShowResults(false);
+        setQuizMode("module"); setView("quiz");
+      };
+
+      const startFullExam = () => {
+        const shuffled = [...ALL_QUESTIONS].sort(() => Math.random() - 0.5);
+        setQuestions(shuffled); setCurrentQ(0); setSelected(null); setAnswered(false);
+        setSessionAnswers([]); setShowResults(false); setExamTimer(0);
+        setActiveModule(null); setQuizMode("fullExam");
+        setExamActive(true); setView("quiz");
+      };
+
+      const startMissedQuiz = () => {
+        if (!missedQuestions.length) return;
+        const shuffled = [...missedQuestions].sort(() => Math.random() - 0.5);
+        setQuestions(shuffled); setCurrentQ(0); setSelected(null); setAnswered(false);
+        setSessionAnswers([]); setShowResults(false);
+        setActiveModule(null); setQuizMode("missed"); setView("quiz");
+      };
+
+      const handleAnswer = (idx) => {
+        if (answered) return;
+        setSelected(idx); setAnswered(true);
+        const q = questions[currentQ];
+        const correct = idx === q.ans;
+        if (quizMode === "module" && activeModule) {
+          setScores(prev => {
+            const s = prev[activeModule.id] || { correct: 0, wrong: 0 };
+            return { ...prev, [activeModule.id]: { correct: s.correct + (correct ? 1 : 0), wrong: s.wrong + (correct ? 0 : 1) } };
+          });
+        }
+        setSessionAnswers(prev => [...prev, { q: q.q, correct, correctAns: q.opts[q.ans], chosenAns: q.opts[idx], rationale: q.rationale }]);
+        if (!correct) {
+          setMissedQuestions(prev => {
+            const exists = prev.some(mq => mq.q === q.q);
+            return exists ? prev : [...prev, q];
+          });
+        }
+      };
+
+      const nextQuestion = () => {
+        if (currentQ + 1 >= questions.length) {
+          setShowResults(true);
+          setExamActive(false);
+        } else {
+          setCurrentQ(c => c + 1);
+          setSelected(null); setAnswered(false);
+        }
+      };
+
+      const getScore = () => sessionAnswers.filter(a => a.correct).length;
+      const getPct = () => Math.round((getScore() / questions.length) * 100);
+      const getGrade = (pct) => pct >= 90 ? "PASS — EXCELLENT" : pct >= 75 ? "PASS" : pct >= 60 ? "MARGINAL" : "NEEDS REVIEW";
+      const getGradeColor = (pct) => pct >= 90 ? "#22C55E" : pct >= 75 ? "#4A9FD4" : pct >= 60 ? "#F59E0B" : "#EF4444";
+
+      const q = questions[currentQ];
+      const pct = questions.length ? (currentQ / questions.length) * 100 : 0;
+      const moduleColor = activeModule?.accent || "#4A9FD4";
+
+      const filteredGlossary = Object.entries(GLOSSARY).reduce((acc, [section, items]) => {
+        const filtered = items.filter(i =>
+          !glossarySearch || i.term.toLowerCase().includes(glossarySearch.toLowerCase()) || i.def.toLowerCase().includes(glossarySearch.toLowerCase())
+        );
+        if (filtered.length) acc[section] = filtered;
+        return acc;
+      }, {});
+
+      return (
+        <div className="app">
+          <nav className="nav">
+            <div className="nav-brand">ISM<span>v5</span></div>
+            <div className="nav-tabs">
+              {/* Added Study Guide Tab */}
+              {[["home","Home"],["guide","Study Guide"],["quiz-select","Practice"],["glossary","Glossary"]].map(([v,l]) => (
+                <button key={v} className={`nav-tab ${view === v || (v === "quiz-select" && view === "quiz") ? "active" : ""}`}
+                  onClick={() => { if (v === "quiz-select") { setView("home"); } else setView(v); }}>
+                  {l}
+                </button>
+              ))}
+            </div>
+          </nav>
+
+          {/* ── HOME ── */}
+          {view === "home" && (
+            <div className="home fade-in">
+              <div className="home-hero">
+                <div className="hero-tag">DELL EMC · ISM v5 · AHEAD LAUNCH PROGRAM</div>
+                <h1 className="hero-title">Storage Infrastructure<br /><span>Certification Prep</span></h1>
+                <p className="hero-sub">85 professional-level questions across 8 modules. Timed full exams, targeted module practice, interactive study guide, and missed-question review. Built for MacBook and tablet.</p>
+              </div>
+
+              <div className="stats-row">
+                <div className="stat-card">
+                  <div className="stat-num">{ALL_QUESTIONS.length}</div>
+                  <div className="stat-label">TOTAL QUESTIONS</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-num">{MODULES.length}</div>
+                  <div className="stat-label">MODULES</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-num" style={{color: totalAnswered ? (totalCorrect/totalAnswered >= 0.75 ? "#22C55E" : "#F59E0B") : "#4A9FD4"}}>
+                    {totalAnswered ? `${Math.round((totalCorrect/totalAnswered)*100)}%` : "—"}
+                  </div>
+                  <div className="stat-label">OVERALL SCORE</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-num" style={{color: missedQuestions.length > 0 ? "#EF4444" : "#22C55E"}}>
+                    {missedQuestions.length}
+                  </div>
+                  <div className="stat-label">MISSED</div>
+                </div>
+              </div>
+
+              <div style={{marginBottom: 24, display:'flex', gap:12, flexWrap:'wrap'}}>
+                <button className="btn-primary" style={{flex:'none', padding:'12px 24px'}} onClick={startFullExam}>
+                  ▶ Full Timed Exam (85 Questions)
+                </button>
+                {missedQuestions.length > 0 && (
+                  <button className="btn-secondary" onClick={startMissedQuiz}>
+                    ↺ Review Missed ({missedQuestions.length})
+                  </button>
+                )}
+                {totalAnswered > 0 && (
+                  <button className="btn-secondary" onClick={() => { setScores({}); setMissedQuestions([]); }}>
+                    ⟳ Reset Progress
+                  </button>
+                )}
+              </div>
+
+              <div style={{fontFamily:"'DM Mono', monospace", fontSize:11, color:'var(--muted)', marginBottom:16, letterSpacing:1}}>PRACTICE BY MODULE</div>
+              <div className="modules-grid">
+                {MODULES.map((m, i) => {
+                  const s = scores[m.id];
+                  const total = s ? s.correct + s.wrong : 0;
+                  const pctDone = total / m.questions.length * 100;
+                  return (
+                    <div key={m.id} className="module-card" style={{"--accent": m.accent}} onClick={() => startModuleQuiz(m)}>
+                      <div className="module-tag" style={{color: m.accent}}>{m.tag}</div>
+                      <div className="module-title">{m.title}</div>
+                      <div className="module-meta">
+                        <span className="module-count">{m.questions.length} questions</span>
+                        {s && <span style={{fontFamily:"'DM Mono', monospace", fontSize:12, color: s.correct/total >= 0.75 ? "#22C55E" : "#F59E0B"}}>{Math.round(s.correct/total*100)}%</span>}
+                        <span className="module-arrow">→</span>
+                      </div>
+                      {total > 0 && (
+                        <div className="module-progress">
+                          <div className="module-progress-fill" style={{width:`${pctDone}%`, background: m.accent}} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── NEW STUDY GUIDE VIEW ── */}
+          {view === "guide" && (
+            <div className="glossary-wrap fade-in">
+              <div style={{marginBottom:32}}>
+                <div className="hero-tag">KNOWLEDGE BASE</div>
+                <h2 style={{fontFamily:"'Syne', sans-serif", fontSize:28, fontWeight:800, marginBottom:8}}>Interactive Study Guide</h2>
+                <p style={{color:'var(--muted)', fontSize:14}}>Review all key concepts and rationales mapped by module before taking the exam.</p>
+              </div>
+
+              {MODULES.map(m => (
+                <div key={m.id} className="guide-module" style={{marginBottom: 40}}>
+                  <div style={{borderBottom: `2px solid ${m.accent}`, paddingBottom: 8, marginBottom: 16}}>
+                    <span style={{fontFamily:"'DM Mono', monospace", fontSize:12, color: m.accent, marginRight: 12}}>{m.tag}</span>
+                    <strong style={{fontFamily:"'Syne', sans-serif", fontSize:18, color:"var(--text)"}}>{m.title}</strong>
+                  </div>
+                  <div style={{display: "flex", flexDirection: "column", gap: 12}}>
+                    {m.questions.map((q, idx) => (
+                      <div key={idx} className="guide-card">
+                        <div className="guide-q">{q.q}</div>
+                        <div className="guide-a"><strong>Key Fact:</strong> {q.opts[q.ans]}</div>
+                        <div className="guide-r">{q.rationale}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ── QUIZ ── */}
+          {view === "quiz" && !showResults && q && (
+            <div className="quiz-wrap fade-in">
+              {quizMode === "fullExam" && (
+                <div className="exam-bar">
+                  <div className={`timer ${examTimer > 4500 ? 'danger' : ''}`}>{formatTime(examTimer)}</div>
+                  <div className="exam-progress">{currentQ + 1} / {questions.length}</div>
+                  <div className="exam-score-live">{sessionAnswers.filter(a=>a.correct).length} correct</div>
+                  <div style={{flex:1}} />
+                  <button className="btn-secondary" style={{padding:'6px 14px', fontSize:12}} onClick={() => { setShowResults(true); setExamActive(false); }}>
+                    End Exam
+                  </button>
+                </div>
+              )}
+              <div className="quiz-header">
+                <button className="quiz-back" onClick={() => { setView("home"); setExamActive(false); }}>← Back</button>
+                <div className="quiz-title">
+                  {quizMode === "fullExam" ? "Full Exam" : quizMode === "missed" ? "Missed Questions Review" : activeModule?.title}
+                </div>
+                <div className="quiz-progress-text">{currentQ + 1} / {questions.length}</div>
+              </div>
+
+              <div className="progress-bar">
+                <div className="progress-fill" style={{width: `${pct}%`, background: moduleColor}} />
+              </div>
+
+              <div className="question-card">
+                <div className="q-num">
+                  QUESTION {currentQ + 1}
+                  {quizMode === "fullExam" && q.moduleTag && (
+                    <span style={{color: q.moduleAccent, marginLeft:12}}>{q.moduleTag}</span>
+                  )}
+                </div>
+                <div className="q-text">{q.q}</div>
+                <div className="options">
+                  {q.opts.map((opt, i) => {
+                    let cls = "option-btn";
+                    if (answered) {
+                      if (i === q.ans) cls += " correct";
+                      else if (i === selected) cls += " wrong";
+                    }
+                    return (
+                      <button key={i} className={cls} onClick={() => handleAnswer(i)} disabled={answered}>
+                        <span className="option-letter">{String.fromCharCode(65+i)}</span>
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+                {answered && (
+                  <div className="rationale">
+                    <strong>{selected === q.ans ? "✓ Correct! " : "✗ Incorrect. "}</strong>
+                    {q.rationale}
+                  </div>
+                )}
+              </div>
+
+              <div className="quiz-actions">
+                {answered && (
+                  <button className="btn-primary" onClick={nextQuestion}>
+                    {currentQ + 1 >= questions.length ? "See Results →" : "Next Question →"}
+                  </button>
+                )}
+                {!answered && (
+                  <button className="btn-secondary" onClick={() => { setSelected(q.ans); setAnswered(true); setSessionAnswers(prev => [...prev, { q: q.q, correct: false, correctAns: q.opts[q.ans], chosenAns: "—SKIPPED—", rationale: q.rationale }]); }}>
+                    Skip / Reveal
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── RESULTS ── */}
+          {view === "quiz" && showResults && (
+            <div className="quiz-wrap fade-in">
+              <div className="results-card">
+                <div style={{fontFamily:"'DM Mono', monospace", fontSize:11, color:'var(--muted)', letterSpacing:2, marginBottom:8}}>
+                  {quizMode === "fullExam" ? "FULL EXAM COMPLETE" : quizMode === "missed" ? "MISSED REVIEW COMPLETE" : `${activeModule?.tag} COMPLETE`}
+                </div>
+                {quizMode === "fullExam" && <div style={{fontFamily:"'DM Mono', monospace", color:'#F59E0B', marginBottom:16}}>Time: {formatTime(examTimer)}</div>}
+                <div className="results-score" style={{color: getGradeColor(getPct())}}>{getPct()}%</div>
+                <div className="results-grade" style={{color: getGradeColor(getPct())}}>{getGrade(getPct())}</div>
+                <div className="results-breakdown">
+                  <div className="rb-item">
+                    <div className="rb-num" style={{color:"#22C55E"}}>{getScore()}</div>
+                    <div className="rb-label">CORRECT</div>
+                  </div>
+                  <div className="rb-item">
+                    <div className="rb-num" style={{color:"#EF4444"}}>{questions.length - getScore()}</div>
+                    <div className="rb-label">INCORRECT</div>
+                  </div>
+                  <div className="rb-item">
+                    <div className="rb-num">{questions.length}</div>
+                    <div className="rb-label">TOTAL</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{display:'flex', gap:12, marginBottom:32, flexWrap:'wrap'}}>
+                <button className="btn-primary" onClick={() => { setShowResults(false); setCurrentQ(0); setSelected(null); setAnswered(false); setSessionAnswers([]); setQuestions(q => [...q].sort(()=>Math.random()-0.5)); }}>
+                  ↺ Retry
+                </button>
+                {missedQuestions.length > 0 && (
+                  <button className="btn-secondary" onClick={startMissedQuiz}>Review {missedQuestions.length} Missed</button>
+                )}
+                <button className="btn-secondary" onClick={() => { setView("home"); setExamActive(false); }}>← All Modules</button>
+              </div>
+
+              <div style={{fontFamily:"'DM Mono', monospace", fontSize:11, color:'var(--muted)', letterSpacing:2, marginBottom:16}}>ANSWER REVIEW</div>
+              <div className="review-list">
+                {sessionAnswers.map((a, i) => (
+                  <div key={i} className="review-item">
+                    <span className="review-icon" style={{color: a.correct ? '#22C55E' : '#EF4444'}}>{a.correct ? "✓" : "✗"}</span>
+                    <div>
+                      <div className="review-q"><strong>Q{i+1}: {a.q}</strong></div>
+                      {!a.correct && <div className="review-q" style={{color:'#FCA5A5', marginTop:4}}>Your answer: {a.chosenAns}</div>}
+                      <div className="review-q" style={{color:'#86EFAC', marginTop:2}}>Correct: {a.correctAns}</div>
+                      <div className="review-q" style={{marginTop:4}}>{a.rationale}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── GLOSSARY ── */}
+          {view === "glossary" && (
+            <div className="glossary-wrap fade-in">
+              <div style={{marginBottom:32}}>
+                <div className="hero-tag">QUICK REFERENCE</div>
+                <h2 style={{fontFamily:"'Syne', sans-serif", fontSize:28, fontWeight:800, marginBottom:8}}>Glossary & Cheat Sheet</h2>
+                <p style={{color:'var(--muted)', fontSize:14}}>All ISM v5 terms, RAID penalties, and naming conventions.</p>
+              </div>
+
+              <div style={{fontFamily:"'DM Mono', monospace", fontSize:11, color:'var(--muted)', letterSpacing:2, marginBottom:12}}>RAID WRITE PENALTIES</div>
+              <div className="quick-ref-grid" style={{marginBottom:32}}>
+                {[["RAID 0","0 — No parity","#22C55E"],["RAID 1","2 — Mirror writes","#4A9FD4"],["RAID 5","4 — R+R+W+W","#9B59B6"],["RAID 6","6 — R+R+R+W+W+W","#E74C8B"],["RAID 1+0","2 — Mirror writes","#F39C12"]].map(([name, val, color]) => (
+                  <div key={name} className="qr-card">
+                    <div className="qr-title">{name}</div>
+                    <div className="qr-val" style={{color, fontSize:15}}>{val}</div>
+                  </div>
+                ))}
+                <div className="qr-card">
+                  <div className="qr-title">RAID 5 CAPACITY</div>
+                  <div className="qr-val" style={{color:'#4A9FD4', fontSize:13}}>[(n-1)/n] × 100</div>
+                </div>
+                <div className="qr-card">
+                  <div className="qr-title">RAID 6 CAPACITY</div>
+                  <div className="qr-val" style={{color:'#E74C8B', fontSize:13}}>[(n-2)/n] × 100</div>
+                </div>
+              </div>
+
+              <div style={{fontFamily:"'DM Mono', monospace", fontSize:11, color:'var(--muted)', letterSpacing:2, marginBottom:12}}>NAMING CONVENTIONS</div>
+              <div className="quick-ref-grid" style={{marginBottom:32}}>
+                <div className="qr-card">
+                  <div className="qr-title">IQN FORMAT</div>
+                  <div style={{fontFamily:"'DM Mono', monospace", fontSize:11, color:'#93C5FD', lineHeight:1.8}}>iqn.YYYY-MM<br/>.com.domain<br/>:unique-id</div>
+                </div>
+                <div className="qr-card">
+                  <div className="qr-title">NQN FORMAT</div>
+                  <div style={{fontFamily:"'DM Mono', monospace", fontSize:11, color:'#93C5FD', lineHeight:1.8}}>nqn.YYYY-MM<br/>.com.domain<br/>:unique-id</div>
+                </div>
+                <div className="qr-card">
+                  <div className="qr-title">WWN FORMAT</div>
+                  <div style={{fontFamily:"'DM Mono', monospace", fontSize:11, color:'#93C5FD', lineHeight:1.8}}>64-bit hex<br/>50:00:97:40<br/>:00:2A:7B:C3</div>
+                </div>
+                <div className="qr-card">
+                  <div className="qr-title">SDDC PLANES</div>
+                  <div style={{fontFamily:"'DM Mono', monospace", fontSize:11, color:'#93C5FD', lineHeight:2}}>Data → forward<br/>Control → decide<br/>Mgmt → configure</div>
+                </div>
+              </div>
+
+              <input
+                className="search-bar" type="text" placeholder="Search terms and definitions..."
+                value={glossarySearch} onChange={e => setGlossarySearch(e.target.value)}
+              />
+
+              {Object.entries(filteredGlossary).map(([section, items]) => (
+                <div key={section} className="glossary-section">
+                  <div className="gloss-section-title">{section.toUpperCase()}</div>
+                  <div className="gloss-grid">
+                    {items.map(item => (
+                      <div key={item.term} className="gloss-item">
+                        <div className="gloss-term">{item.term}</div>
+                        <div className="gloss-def">{item.def}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ISMStudyApp />);
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #0A0E1A; --bg2: #0F1628; --bg3: #141D35; --border: rgba(255,255,255,0.08); --text: #E8ECF5; --muted: #7A88A8; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    .fade-in { animation: fadeIn 0.4s ease forwards; }
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+    .nav { position: sticky; top: 0; z-index: 100; background: rgba(10,14,26,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .nav-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+    .nav-brand span { color: #4A9FD4; }
+    .nav-tabs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px;}
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer; background: transparent; color: var(--muted); transition: all 0.2s; letter-spacing: 0.5px; white-space: nowrap; }
+    .nav-tab:hover { background: var(--bg3); color: var(--text); }
+    .nav-tab.active { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+    .home { padding: 48px 20px 80px; max-width: 960px; margin: 0 auto; width: 100%; }
+    .home-hero { margin-bottom: 48px; }
+    .hero-tag { font-family: 'DM Mono', monospace; font-size: 11px; color: #4A9FD4; letter-spacing: 2px; margin-bottom: 16px; }
+    .hero-title { font-family: 'Syne', sans-serif; font-size: clamp(32px, 6vw, 52px); font-weight: 800; line-height: 1.1; letter-spacing: -1px; margin-bottom: 16px; }
+    .hero-title span { background: linear-gradient(135deg, #4A9FD4 0%, #9B59B6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-sub { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 520px; }
+    .stats-row { display: flex; gap: 16px; margin-bottom: 48px; flex-wrap: wrap; }
+    .stat-card { flex: 1; min-width: 120px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+    .stat-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #4A9FD4; }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; letter-spacing: 0.5px; }
+    .modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .module-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+    .module-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); opacity: 0.8; }
+    .module-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
+    .module-tag { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; margin-bottom: 10px; }
+    .module-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+    .module-meta { display: flex; align-items: center; justify-content: space-between; }
+    .module-count { font-size: 12px; color: var(--muted); }
+    .module-arrow { font-size: 18px; color: var(--muted); }
+    .module-progress { margin-top: 12px; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+    .module-progress-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+    .quiz-wrap { padding: 24px 20px 80px; max-width: 800px; margin: 0 auto; width: 100%; }
+    .quiz-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; padding: 16px 20px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; flex-wrap: wrap; gap: 12px; }
+    .quiz-back { background: var(--bg3); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-family: 'DM Mono', monospace; }
+    .quiz-back:hover { border-color: rgba(255,255,255,0.2); }
+    .quiz-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; flex: 1; min-width: 180px; }
+    .quiz-progress-text { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .progress-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-bottom: 32px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s cubic-bezier(.4,0,.2,1); }
+    .question-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 32px; margin-bottom: 16px; position: relative; }
+    .q-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; margin-bottom: 16px; }
+    .q-text { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 500; line-height: 1.6; margin-bottom: 28px; }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn { display: flex; align-items: center; gap: 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; cursor: pointer; text-align: left; width: 100%; transition: all 0.15s; color: var(--text); font-size: 14px; line-height: 1.5; }
+    .option-btn:hover:not(:disabled) { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+    .option-btn:disabled { cursor: default; }
+    .option-btn.correct { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.5); color: #86EFAC; }
+    .option-btn.wrong { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.5); color: #FCA5A5; }
+    .option-letter { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 1px; width: 26px; height: 26px; border-radius: 6px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .option-btn.correct .option-letter { background: rgba(34,197,94,0.2); }
+    .option-btn.wrong .option-letter { background: rgba(239,68,68,0.2); }
+    .rationale { background: rgba(74,159,212,0.1); border: 1px solid rgba(74,159,212,0.25); border-radius: 12px; padding: 16px 18px; margin-top: 16px; font-size: 13px; line-height: 1.6; color: #93C5FD; animation: fadeIn 0.3s ease; }
+    .rationale strong { color: #BAE6FD; }
+    .quiz-actions { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+    .btn-primary { background: linear-gradient(135deg, #4A9FD4, #2563EB); border: none; color: white; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: 0.5px; transition: all 0.2s; flex: 1; }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-secondary { background: var(--bg3); border: 1px solid var(--border); color: var(--text); padding: 12px 24px; border-radius: 10px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.2); }
+    .results-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 40px 32px; text-align: center; margin-bottom: 32px; }
+    .results-score { font-family: 'Syne', sans-serif; font-size: 72px; font-weight: 800; line-height: 1; margin-bottom: 8px; }
+    .results-grade { font-size: 16px; color: var(--muted); margin-bottom: 32px; }
+    .results-breakdown { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
+    .rb-item { text-align: center; }
+    .rb-num { font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500; }
+    .rb-label { font-size: 11px; color: var(--muted); margin-top: 4px; letter-spacing: 0.5px; }
+    .review-list { display: flex; flex-direction: column; gap: 12px; }
+    .review-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; gap: 12px; align-items: flex-start; }
+    .review-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+    .review-q { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .review-q strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 14px; }
+    .exam-bar { position: sticky; top: 60px; z-index: 50; background: rgba(10,14,26,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .timer { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; color: #F59E0B; min-width: 80px; }
+    .timer.danger { color: #EF4444; animation: pulse 1s infinite; }
+    .exam-progress { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+    .exam-score-live { font-family: 'DM Mono', monospace; font-size: 13px; color: #4A9FD4; }
+    .glossary-wrap { padding: 24px 20px 80px; max-width: 900px; margin: 0 auto; width: 100%; }
+    .search-bar { width: 100%; padding: 14px 18px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 15px; margin-bottom: 24px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+    .search-bar:focus { border-color: rgba(74,159,212,0.4); }
+    .search-bar::placeholder { color: var(--muted); }
+    .glossary-section { margin-bottom: 32px; }
+    .gloss-section-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 2px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .gloss-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 8px; }
+    .gloss-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; transition: border-color 0.2s; }
+    .gloss-item:hover { border-color: rgba(255,255,255,0.15); }
+    .gloss-term { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: #93C5FD; margin-bottom: 4px; }
+    .gloss-def { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .quick-ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 24px; }
+    .qr-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+    .qr-title { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .qr-val { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+    .guide-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; transition: all 0.2s; }
+    .guide-card:hover { border-color: rgba(255,255,255,0.15); }
+    .guide-q { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+    .guide-a { font-size: 14px; color: #86EFAC; margin-bottom: 8px; }
+    .guide-r { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @media (max-width: 600px) { .nav-tabs { gap: 2px; } .nav-tab { padding: 5px 10px; font-size: 10px; } .question-card { padding: 20px; } .q-text { font-size: 15px; } .results-score { font-size: 56px; } .gloss-grid { grid-template-columns: 1fr; } .hero-title { font-size: 28px; } }
+  </style>
+</body>
+</html>
