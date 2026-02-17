@@ -9,14 +9,38 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@9.4.3/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: false, theme: 'dark', fontFamily: 'DM Mono, monospace' });
+  </script>
 </head>
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useCallback } = React;
+    const { useState, useEffect, useRef } = React;
+
+    // ─── NATIVE DIAGRAM COMPONENT ─────────────────────────────────────────────
+    function MermaidDiagram({ chart }) {
+      const ref = useRef(null);
+      useEffect(() => {
+        if (ref.current && window.mermaid) {
+          // Clear previous render to prevent duplication on re-renders
+          ref.current.removeAttribute('data-processed');
+          ref.current.innerHTML = chart;
+          window.mermaid.init(undefined, ref.current);
+        }
+      }, [chart]);
+      return (
+        <div className="mermaid-wrapper glass-panel" style={{padding: '24px', marginTop: '16px', background: 'rgba(0,0,0,0.2)', textAlign: 'center', overflowX: 'auto'}}>
+          <div className="mermaid" ref={ref}>{chart}</div>
+        </div>
+      );
+    }
 
     // ─── DATA ARCHITECTURE (MODULES, GLOSSARY, STUDY NOTES) ──────────────
+    // Retaining all 85 Questions
     const MODULES = [
       {
         id: "m1", title: "Digital Transformation & Business Drivers", tag: "MOD 1–2", color: "#0F4C81", accent: "#0076CE",
@@ -147,60 +171,110 @@
 
     const ALL_QUESTIONS = MODULES.flatMap((m, mi) => m.questions.map((q, qi) => ({ ...q, moduleIndex: mi, moduleTitle: m.title, moduleTag: m.tag, moduleColor: m.color, moduleAccent: m.accent })));
 
+    // ─── MASTER ACRONYM GLOSSARY ENGINE ────────────────────────────────────────
     const GLOSSARY = {
-      "Architecture & Devices": [
-        { term: "ISS", def: "Intelligent Storage System — enterprise storage array with controllers, cache, and DAEs providing data services" },
-        { term: "DAS", def: "Direct-Attached Storage — storage connected directly to a single server; cannot be shared" },
-        { term: "NAS", def: "Network-Attached Storage — file-level storage using NFS/CIFS/SMB over IP Ethernet" },
-        { term: "SAN", def: "Storage Area Network — high-speed block-level storage network; storage exists independently of servers" },
-        { term: "OSD", def: "Object-Based Storage Device — stores data as objects in a flat address space; accessed via REST/S3" },
-        { term: "DAE", def: "Disk Array Enclosure — physical shelf within a storage array where drives are installed" },
-        { term: "HCI", def: "Hyperconverged Infrastructure — single platform combining compute, storage, virtualization, and networking" },
-        { term: "SDS", def: "Software-Defined Storage — storage intelligence decoupled from hardware; runs on commodity servers" },
-        { term: "SCM", def: "Storage Class Memory — non-volatile memory bridging the gap between DRAM and NAND flash" },
-        { term: "LUN", def: "Logical Unit Number — logical partition of an ISS presented to a compute system for data access" },
-        { term: "HDD", def: "Hard Disk Drive — spinning magnetic storage limited by seek time and rotational latency" },
-        { term: "SSD", def: "Solid-State Drive — flash-based non-volatile storage; eliminates seek time and rotational latency" },
-      ],
-      "Protocols & Connectivity": [
-        { term: "FC", def: "Fibre Channel — lossless high-speed block protocol; uses B2B credits; guaranteed in-order delivery" },
-        { term: "FCoE", def: "Fibre Channel over Ethernet — FC SAN traffic over Converged Enhanced Ethernet; requires CNA" },
-        { term: "FCIP", def: "Fibre Channel over IP — tunneling protocol extending FC SANs across IP WANs; used for DR" },
-        { term: "iSCSI", def: "Internet SCSI — block storage protocol encapsulating SCSI commands in TCP/IP packets" },
-        { term: "NVMe", def: "Non-Volatile Memory Express — PCIe-native protocol for flash; 65,535 queues vs SATA's 1" },
-        { term: "NVMe-oF", def: "NVMe over Fabrics — NVMe protocol transported over FC (FC-NVMe) or TCP/IP (NVMe/TCP)" },
-        { term: "HBA", def: "Host Bus Adapter — adapter enabling a compute system to connect to an FC SAN fabric" },
-        { term: "CNA", def: "Converged Network Adapter — single adapter replacing both NIC and HBA; carries LAN and FCoE" },
+      "Master Acronym Index": [
+        { term: "API", def: "Application Programming Interface" },
+        { term: "ATA", def: "Advanced Technology Attachment" },
+        { term: "CD", def: "Compact Disc" },
+        { term: "CIA", def: "Confidentiality, Integrity, and Availability" },
+        { term: "CIAA", def: "Confidentiality, Integrity, Availability, and Accountability" },
+        { term: "CIFS", def: "Common Internet File System" },
+        { term: "CI", def: "Configuration Item / Converged Infrastructure" },
+        { term: "CMS", def: "Configuration Management System" },
+        { term: "D@RE", def: "Data at Rest Encryption" },
+        { term: "DAS", def: "Direct-Attached Storage" },
+        { term: "DMZ", def: "Demilitarized Zone" },
+        { term: "DVD", def: "Digital Versatile Disc" },
+        { term: "EUI", def: "Extended Unique Identifier" },
+        { term: "FC", def: "Fibre Channel" },
+        { term: "FCIP", def: "Fibre Channel over IP" },
+        { term: "FCoE", def: "Fibre Channel over Ethernet" },
+        { term: "FCP", def: "Fibre Channel Protocol" },
+        { term: "FTP", def: "File Transfer Protocol" },
+        { term: "GRC", def: "Governance, Risk, and Compliance" },
+        { term: "GUI", def: "Graphical User Interface" },
+        { term: "HBA", def: "Host Bus Adapter" },
+        { term: "HCI", def: "Hyperconverged Infrastructure" },
+        { term: "HDD", def: "Hard Disk Drive" },
+        { term: "HTTP", def: "Hypertext Transfer Protocol" },
+        { term: "IA", def: "Information Availability" },
+        { term: "IDC", def: "International Data Corporation" },
+        { term: "IDS", def: "Intrusion Detection System" },
+        { term: "IoT", def: "Internet of Things" },
+        { term: "IP", def: "Internet Protocol" },
+        { term: "IPS", def: "Intrusion Prevention System" },
+        { term: "IQN", def: "iSCSI Qualified Name" },
+        { term: "iSCSI", def: "Internet Small Computer System Interface" },
+        { term: "ISL", def: "Interswitch Link" },
+        { term: "ISS", def: "Intelligent Storage System" },
+        { term: "LAN", def: "Local Area Network" },
+        { term: "LUN", def: "Logical Unit Number" },
+        { term: "MAC", def: "Media Access Control" },
+        { term: "MRI", def: "Magnetic Resonance Imaging" },
+        { term: "MTBF", def: "Mean Time Between Failure" },
+        { term: "MTTR", def: "Mean Time To Repair" },
+        { term: "NAA", def: "Network Address Authority" },
+        { term: "NAS", def: "Network Attached Storage" },
+        { term: "NFS", def: "Network File System" },
+        { term: "NIC", def: "Network Interface Card" },
+        { term: "NQN", def: "NVMe Qualified Name" },
+        { term: "NVM", def: "Non-Volatile Memory" },
+        { term: "NVMe", def: "Non-Volatile Memory express" },
+        { term: "NVMe-oF", def: "NVMe over Fabrics" },
+        { term: "NVRAM", def: "Non-Volatile Random Access Memory" },
+        { term: "OS", def: "Operating System" },
+        { term: "OSD", def: "Object-Based Storage Device" },
+        { term: "OSI", def: "Open Systems Interconnection" },
+        { term: "PCIe", def: "Peripheral Component Interconnect Express" },
+        { term: "RAID", def: "Redundant Array of Independent Disks" },
+        { term: "RAM", def: "Random Access Memory" },
+        { term: "REST", def: "Representational State Transfer" },
+        { term: "RPO", def: "Recovery Point Objective" },
+        { term: "RTO", def: "Recovery Time Objective" },
+        { term: "SAN", def: "Storage Area Network" },
+        { term: "SAS", def: "Serial Attached SCSI" },
+        { term: "SATA", def: "Serial Advanced Technology Attachment" },
+        { term: "SCM", def: "Storage Class Memory" },
+        { term: "SCSI", def: "Small Computer System Interface" },
+        { term: "SDDC", def: "Software-Defined Data Center" },
+        { term: "SDN", def: "Software-Defined Networking" },
+        { term: "SDS", def: "Software-Defined Storage" },
+        { term: "SFSS", def: "SmartFabric Storage Software" },
+        { term: "SLA", def: "Service Level Agreement" },
+        { term: "SMB", def: "Server Message Block" },
+        { term: "SOAP", def: "Simple Object Access Protocol" },
+        { term: "SPOF", def: "Single Point of Failure" },
+        { term: "SRM", def: "Storage Resource Manager" },
+        { term: "SSD", def: "Solid-State Drive" },
+        { term: "SSL", def: "Secure Sockets Layer" },
+        { term: "TCP", def: "Transmission Control Protocol" },
+        { term: "TCP/IP", def: "Transmission Control Protocol/Internet Protocol" },
+        { term: "TOE", def: "TCP Offload Engine" },
+        { term: "USB", def: "Universal Serial Bus" },
+        { term: "VLAN", def: "Virtual Local Area Network" },
+        { term: "VM", def: "Virtual Machine" },
+        { term: "VSAN", def: "Virtual Storage Area Network" },
+        { term: "WAN", def: "Wide Area Network" },
+        { term: "WWN", def: "World Wide Name" },
+        { term: "WWNN", def: "World Wide Node Name" },
+        { term: "WWPN", def: "World Wide Port Name" },
+        { term: "XML", def: "Extensible Markup Language" },
+        { term: "ZB", def: "Zettabytes" }
       ],
       "SAN Fabric Terms": [
         { term: "N_Port", def: "Node Port — endpoint in the fabric; on server HBAs and storage array ports" },
         { term: "F_Port", def: "Fabric Port — switch port accepting connections from N_Ports" },
         { term: "E_Port", def: "Expansion Port — switch port forming an Interswitch Link (ISL) to another switch" },
-        { term: "G_Port", def: "Generic Port — auto-negotiates to E_Port or F_Port at link initialization" },
-        { term: "ISL", def: "Interswitch Link — physical connection between E_Ports on two FC switches, expanding the fabric" },
-        { term: "VSAN", def: "Virtual SAN — logically isolated SAN partition on a physical fabric with its own zoning" },
-        { term: "WWN", def: "World Wide Name — globally unique 64-bit identifier for FC devices" },
+        { term: "G_Port", def: "Generic Port — auto-negotiates to E_Port or F_Port at link initialization" }
       ],
       "RAID Quick Reference": [
         { term: "RAID 0", def: "Striping only. No fault tolerance. Write penalty: 0. Usable: 100%" },
         { term: "RAID 1", def: "Mirroring. Survives 1 failure. Write penalty: 2. Usable: 50%" },
         { term: "RAID 5", def: "Striping + 1 parity. Survives 1 failure. Write penalty: 4. Usable: [(n-1)/n]×100. Min disks: 3" },
         { term: "RAID 6", def: "Striping + 2 parity. Survives 2 failures. Write penalty: 6. Usable: [(n-2)/n]×100. Min disks: 4" },
-        { term: "RAID 1+0", def: "Mirrored stripes. Survives 1 per mirror pair. Write penalty: 2. Usable: 50%. Min disks: 4" },
-      ],
-      "Data Protection & BC": [
-        { term: "RPO", def: "Recovery Point Objective — maximum acceptable data loss after an outage; measured in time" },
-        { term: "RTO", def: "Recovery Time Objective — maximum acceptable downtime before systems must be restored" },
-        { term: "CDP", def: "Continuous Data Protection — captures every write; enables recovery to any point in time" },
-        { term: "D@RE", def: "Data at Rest Encryption — ISS data service encrypting all data written to physical drives" },
-        { term: "PIT", def: "Point-In-Time — a specific moment captured by a snapshot or replica" },
-      ],
-      "Security & Access Control": [
-        { term: "CIA Triad", def: "Confidentiality, Integrity, Availability — three pillars of information security" },
-        { term: "RBAC", def: "Role-Based Access Control — access based on assigned roles; principle of least privilege; separation of duties" },
-        { term: "MFA", def: "Multi-Factor Authentication — requires 2+ verification factors (password + token)" },
-        { term: "OAuth", def: "Open Authorization (RFC 6749) — delegated authorization using scoped, time-limited access tokens" },
-      ],
+        { term: "RAID 1+0", def: "Mirrored stripes. Survives 1 per mirror pair. Write penalty: 2. Usable: 50%. Min disks: 4" }
+      ]
     };
 
     const STUDY_NOTES = [
@@ -222,6 +296,15 @@
       },
       {
         title: "Module 3: Modern Data Center Environment", tag: "MOD 3", color: "#8A2BE2",
+        diagram: `graph TD;
+          subgraph SDDC Architecture
+            A[Management Plane] --> B[Control Plane];
+            B --> C[Data Plane];
+            C --> D[Physical Storage/Network/Compute];
+          end
+          classDef plain fill:transparent,stroke:#8A2BE2,stroke-width:2px,color:#fff;
+          class A,B,C,D plain;
+        `,
         content: [
           { sub: "Compute & Virtualization", bullets: ["Compute Types: Tower, Rack-mounted, Blade (high density, modular).", "Hypervisor: Software abstraction layer for VMs.", "Containers: OS-level virtualization (e.g., Docker) for portable microservices."] },
           { sub: "Software-Defined Data Center (SDDC)", bullets: ["Separates Control Plane (logic/decisions) from Data Plane (actual forwarding).", "HCI (Hyperconverged): Software-defined distributed infrastructure in a single node.", "Greenfield: Building new infrastructure from scratch."] }
@@ -242,6 +325,13 @@
       },
       {
         title: "Module 6 & 7: SAN Connectivity (FC & IP)", tag: "MOD 6-7", color: "#F2A900",
+        diagram: `graph LR;
+          S((Server N_Port)) <-->|FC Link| E[Edge Switch F_Port];
+          E <-->|ISL E_Port| C[Core Switch E_Port];
+          C <-->|FC Link| ST((Storage N_Port));
+          classDef plain fill:transparent,stroke:#F2A900,stroke-width:2px,color:#fff;
+          class S,E,C,ST plain;
+        `,
         content: [
           { sub: "FC SAN", bullets: ["FC Ports: N_Port (Node), F_Port (Switch), E_Port (Expansion/ISL).", "Topologies: Core-Edge connects edge hosts to core storage.", "Zoning: Logical private path preventing unauthorized communication (WWN vs Port zoning)."] },
           { sub: "IP SAN & Converged", bullets: ["iSCSI: Encapsulates SCSI into IP packets.", "FCIP: Tunnels FC over IP for long-distance disaster recovery.", "FCoE: Consolidates LAN/SAN onto one cable using CNAs.", "NVMe-oF: Extends NVMe performance over network fabric."] }
@@ -314,21 +404,15 @@
         return () => clearInterval(interval);
       }, [examActive]);
 
-      // KEYBOARD NAVIGATION (MAC OPTIMIZATION)
+      // KEYBOARD NAVIGATION
       useEffect(() => {
         const handleKeyDown = (e) => {
           if (view !== "quiz" || showResults || !questions[currentQ]) return;
-          
-          if (answered && e.key === "Enter") {
-            nextQuestion();
-            return;
-          }
+          if (answered && e.key === "Enter") { nextQuestion(); return; }
           if (!answered) {
             const keyMap = { 'a': 0, 'b': 1, 'c': 2, 'd': 3 };
             const idx = keyMap[e.key.toLowerCase()];
-            if (idx !== undefined && idx < questions[currentQ].opts.length) {
-              handleAnswer(idx);
-            }
+            if (idx !== undefined && idx < questions[currentQ].opts.length) handleAnswer(idx);
           }
         };
         window.addEventListener("keydown", handleKeyDown);
@@ -344,30 +428,23 @@
       };
 
       const startModuleQuiz = (module) => {
-        setActiveModule(module);
-        setQuestions(module.questions.map((q, i) => ({ ...q, originalIndex: i })));
-        setCurrentQ(0); setSelected(null); setAnswered(false);
-        setSessionAnswers([]); setShowResults(false);
-        setQuizMode("module"); setView("quiz");
-        window.scrollTo(0,0);
+        setActiveModule(module); setQuestions(module.questions.map((q, i) => ({ ...q, originalIndex: i })));
+        setCurrentQ(0); setSelected(null); setAnswered(false); setSessionAnswers([]); setShowResults(false);
+        setQuizMode("module"); setView("quiz"); window.scrollTo(0,0);
       };
 
       const startFullExam = () => {
         const shuffled = [...ALL_QUESTIONS].sort(() => Math.random() - 0.5);
         setQuestions(shuffled); setCurrentQ(0); setSelected(null); setAnswered(false);
         setSessionAnswers([]); setShowResults(false); setExamTimer(0);
-        setActiveModule(null); setQuizMode("fullExam");
-        setExamActive(true); setView("quiz");
-        window.scrollTo(0,0);
+        setActiveModule(null); setQuizMode("fullExam"); setExamActive(true); setView("quiz"); window.scrollTo(0,0);
       };
 
       const startMissedQuiz = () => {
         if (!missedQuestions.length) return;
         const shuffled = [...missedQuestions].sort(() => Math.random() - 0.5);
         setQuestions(shuffled); setCurrentQ(0); setSelected(null); setAnswered(false);
-        setSessionAnswers([]); setShowResults(false);
-        setActiveModule(null); setQuizMode("missed"); setView("quiz");
-        window.scrollTo(0,0);
+        setSessionAnswers([]); setShowResults(false); setActiveModule(null); setQuizMode("missed"); setView("quiz"); window.scrollTo(0,0);
       };
 
       const handleAnswer = (idx) => {
@@ -383,22 +460,15 @@
         }
         setSessionAnswers(prev => [...prev, { q: q.q, correct, correctAns: q.opts[q.ans], chosenAns: q.opts[idx], rationale: q.rationale }]);
         if (!correct) {
-          setMissedQuestions(prev => {
-            const exists = prev.some(mq => mq.q === q.q);
-            return exists ? prev : [...prev, q];
-          });
+          setMissedQuestions(prev => { const exists = prev.some(mq => mq.q === q.q); return exists ? prev : [...prev, q]; });
         }
       };
 
       const handleSkip = () => {
         const q = questions[currentQ];
-        setSelected(q.ans); 
-        setAnswered(true); 
+        setSelected(q.ans); setAnswered(true); 
         setSessionAnswers(prev => [...prev, { q: q.q, correct: false, correctAns: q.opts[q.ans], chosenAns: "—SKIPPED—", rationale: q.rationale }]);
-        setMissedQuestions(prev => {
-            const exists = prev.some(mq => mq.q === q.q);
-            return exists ? prev : [...prev, q];
-        });
+        setMissedQuestions(prev => { const exists = prev.some(mq => mq.q === q.q); return exists ? prev : [...prev, q]; });
       };
 
       const nextQuestion = () => {
@@ -442,30 +512,19 @@
               <div className="home-hero">
                 <div className="hero-tag">DELL EMC · ISM v5 · AHEAD LAUNCH PROGRAM</div>
                 <h1 className="hero-title">Storage Infrastructure<br /><span>Certification Prep</span></h1>
-                <p className="hero-sub">Enterprise-grade study application with persistent data tracking, deep-dive architectural notes, and 85 professional-level exam questions.</p>
+                <p className="hero-sub">Enterprise-grade study application with native architecture diagrams, persistent data tracking, and 85 professional-level exam questions.</p>
               </div>
 
               <div className="stats-row">
-                <div className="stat-card glass-panel">
-                  <div className="stat-num">{ALL_QUESTIONS.length}</div>
-                  <div className="stat-label">TOTAL QUESTIONS</div>
-                </div>
-                <div className="stat-card glass-panel">
-                  <div className="stat-num">{MODULES.length}</div>
-                  <div className="stat-label">MODULES</div>
-                </div>
+                <div className="stat-card glass-panel"><div className="stat-num">{ALL_QUESTIONS.length}</div><div className="stat-label">TOTAL QUESTIONS</div></div>
+                <div className="stat-card glass-panel"><div className="stat-num">{MODULES.length}</div><div className="stat-label">MODULES</div></div>
                 <div className="stat-card glass-panel">
                   <div className="stat-num" style={{color: totalAnswered ? (totalCorrect/totalAnswered >= 0.75 ? "#22C55E" : "#F59E0B") : "#0076CE"}}>
                     {totalAnswered ? `${Math.round((totalCorrect/totalAnswered)*100)}%` : "—"}
                   </div>
                   <div className="stat-label">OVERALL SCORE</div>
                 </div>
-                <div className="stat-card glass-panel">
-                  <div className="stat-num" style={{color: missedQuestions.length > 0 ? "#EF4444" : "#22C55E"}}>
-                    {missedQuestions.length}
-                  </div>
-                  <div className="stat-label">MISSED</div>
-                </div>
+                <div className="stat-card glass-panel"><div className="stat-num" style={{color: missedQuestions.length > 0 ? "#EF4444" : "#22C55E"}}>{missedQuestions.length}</div><div className="stat-label">MISSED</div></div>
               </div>
 
               <div className="action-row">
@@ -489,9 +548,7 @@
                         {s && <span style={{fontFamily:"'DM Mono', monospace", fontSize:12, color: s.correct/total >= 0.75 ? "#22C55E" : "#F59E0B"}}>{Math.round(s.correct/total*100)}%</span>}
                         <span className="module-arrow">→</span>
                       </div>
-                      {total > 0 && (
-                        <div className="module-progress"><div className="module-progress-fill" style={{width:`${pctDone}%`, background: m.accent}} /></div>
-                      )}
+                      {total > 0 && <div className="module-progress"><div className="module-progress-fill" style={{width:`${pctDone}%`, background: m.accent}} /></div>}
                     </div>
                   );
                 })}
@@ -499,7 +556,7 @@
             </div>
           )}
 
-          {/* ── INTERACTIVE STUDY GUIDE ── */}
+          {/* ── INTERACTIVE STUDY GUIDE WITH NATIVE DIAGRAMS ── */}
           {view === "guide" && (
             <div className="glossary-wrap fade-in">
               <div className="home-hero" style={{marginBottom: 40}}>
@@ -515,11 +572,13 @@
                     <h3 style={{fontFamily:"'Syne', sans-serif", fontSize:20, color:"var(--text)", margin: 0}}>{module.title}</h3>
                   </div>
                   <div style={{padding: '24px'}}>
+                    
+                    {/* Render Mermaid Diagrams if they exist in the module data */}
+                    {module.diagram && <MermaidDiagram chart={module.diagram} />}
+
                     {module.content.map((section, sIdx) => (
-                      <div key={sIdx} style={{marginBottom: sIdx === module.content.length - 1 ? 0 : 32}}>
-                        <h4 style={{fontFamily:"'Inter', sans-serif", fontSize: 15, fontWeight: 600, color: '#E8ECF5', marginBottom: 12, borderBottom: '1px solid var(--border)', paddingBottom: 8}}>
-                          {section.sub}
-                        </h4>
+                      <div key={sIdx} style={{marginBottom: sIdx === module.content.length - 1 ? 0 : 32, marginTop: sIdx === 0 && module.diagram ? 32 : 0}}>
+                        <h4 style={{fontFamily:"'Inter', sans-serif", fontSize: 15, fontWeight: 600, color: '#E8ECF5', marginBottom: 12, borderBottom: '1px solid var(--border)', paddingBottom: 8}}>{section.sub}</h4>
                         <div className="guide-grid">
                           {section.bullets.map((bullet, bIdx) => {
                             const [boldPart, rest] = bullet.includes(':') ? bullet.split(/:(.+)/) : [null, bullet];
@@ -609,9 +668,7 @@
                 </div>
                 <div className="results-score" style={{color: getGradeColor(getPct())}}>{getPct()}%</div>
                 <div className="results-grade" style={{color: getGradeColor(getPct())}}>{getGrade(getPct())}</div>
-                <p style={{color: 'var(--muted)', fontSize: 14, maxWidth: 400, margin: '0 auto 32px auto', lineHeight: 1.5}}>
-                  {getGradeMessage(getPct())}
-                </p>
+                <p style={{color: 'var(--muted)', fontSize: 14, maxWidth: 400, margin: '0 auto 32px auto', lineHeight: 1.5}}>{getGradeMessage(getPct())}</p>
                 {quizMode === "fullExam" && <div style={{fontFamily:"'DM Mono', monospace", color:'#00AEEF', marginBottom:24}}>Time Elapsed: {formatTime(examTimer)}</div>}
                 
                 <div className="results-breakdown">
@@ -648,12 +705,12 @@
             </div>
           )}
 
-          {/* ── GLOSSARY ── */}
+          {/* ── MASTER GLOSSARY ── */}
           {view === "glossary" && (
             <div className="glossary-wrap fade-in">
               <div className="home-hero" style={{marginBottom: 32}}>
                 <div className="hero-tag">QUICK REFERENCE</div>
-                <h2 className="hero-title" style={{fontSize: '32px'}}>Glossary & Cheat Sheet</h2>
+                <h2 className="hero-title" style={{fontSize: '32px'}}>Master Glossary & Cheat Sheet</h2>
               </div>
 
               <div className="section-title">RAID WRITE PENALTIES</div>
@@ -666,7 +723,7 @@
                 ))}
               </div>
 
-              <input className="search-bar glass-panel" type="text" placeholder="Search terms and definitions..." value={glossarySearch} onChange={e => setGlossarySearch(e.target.value)} />
+              <input className="search-bar glass-panel" type="text" placeholder="Search 80+ Acronyms and definitions..." value={glossarySearch} onChange={e => setGlossarySearch(e.target.value)} />
 
               {Object.entries(filteredGlossary).length === 0 ? (
                 <div style={{textAlign: 'center', padding: '40px', color: 'var(--muted)'}}>No terms match your search.</div>
