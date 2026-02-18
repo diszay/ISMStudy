@@ -142,8 +142,41 @@
 
     const ALL_QUESTIONS = MODULES.flatMap((m) => m.questions.map((q, i) => ({ ...q, moduleTag: m.tag, moduleAccent: m.accent, moduleId: m.id, qId: `${m.id}-${i}` })));
 
-    // ─── DEEP-DIVE STUDY NOTES (PARSED DIRECTLY FROM DELL PDFs) ───────────────
+    // ─── DEEP-DIVE STUDY NOTES (PARSED DIRECTLY FROM DELL PDFs - ALL 12 MODS) ─
     const ENRICHED_STUDY_NOTES = [
+      {
+        id: "m1", title: "Digital Transformation & Business Drivers", tag: "MOD 1-2", color: "#0F4C81",
+        diagram: `graph TD;
+          subgraph Innovation Enablers
+            DT[Digital Transformation] --> CC[Cloud Computing];
+            DT --> BD[Big Data & Analytics];
+            DT --> IoT[IoT & Edge Computing];
+            DT --> AI[AI & Machine Learning];
+          end
+          classDef plain fill:transparent,stroke:#0F4C81,stroke-width:2px,color:#fff;
+          class DT,CC,BD,IoT,AI plain;
+        `,
+        concepts: [
+          {
+            id: "m1c1", title: "Data vs. Information",
+            eli5: "Data is like raw ingredients (flour, eggs, sugar). Information is the baked cake. You can't serve raw flour to the boss; you have to process it into a cake first so they can consume it.",
+            expert: "Data consists of raw facts (structured or unstructured) stored as binary values. Information is data that has been processed and analyzed to enable useful interpretation and strategic business decision-making.",
+            takeaway: "Storage systems don't just hold data; they must ensure data is highly available and performant enough to be processed into actionable information."
+          },
+          {
+            id: "m1c2", title: "Cloud Computing Essential Characteristics",
+            eli5: "The Cloud is like renting a car instead of buying one. You get it instantly (On-Demand), drive it anywhere (Network Access), upgrade to an SUV if needed (Elasticity), and only pay for the miles driven (Measured Service).",
+            expert: "The NIST defines cloud computing through 5 essential characteristics: On-demand self-service (provisioning without human interaction), Broad network access, Resource pooling (multi-tenant model), Rapid elasticity (scaling commensurately with demand), and Measured service (metering/billing).",
+            takeaway: "Without 'Measured Service' and a 'Self-Service Portal', you just have virtualization, not a true Cloud architecture."
+          },
+          {
+            id: "m1c3", title: "Big Data & Edge Computing",
+            eli5: "If you have a billion thermometers sending data every second, your internet will crash. Edge computing puts a mini-brain right next to the thermometers to filter the junk and only send the important alerts to the main cloud.",
+            expert: "Big Data is defined by Volume, Velocity, and Variety. To handle extreme Velocity in IoT networks, Edge Computing performs analytics close to the data source (sensors/gateways) to drastically reduce bandwidth consumption and achieve ultra-low latency.",
+            takeaway: "Edge computing decentralizes processing to solve the bandwidth and latency bottlenecks inherent in massive IoT deployments."
+          }
+        ]
+      },
       {
         id: "m2", title: "Modern Data Center Environment", tag: "MOD 3", color: "#00AEEF",
         diagram: `graph TD;
@@ -234,7 +267,7 @@
         ]
       },
       {
-        id: "m8", title: "Security & Management", tag: "MOD 11-12", color: "#FF5A00",
+        id: "m8", title: "Security Architectures", tag: "MOD 11-12", color: "#FF5A00",
         concepts: [
           {
             id: "m8c1", title: "Advanced Cyber Recovery Vault",
@@ -945,6 +978,7 @@
     .gloss-item { padding: 20px 24px; }
     .gloss-term { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: #60A5FA; margin-bottom: 10px; }
     .gloss-def { font-size: 14px; color: var(--muted); line-height: 1.5; }
+    
     .quick-ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 48px; }
     .qr-card { padding: 20px; }
 
