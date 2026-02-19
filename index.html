@@ -18,18 +18,14 @@
   <script type="text/babel">
     const { useState, useEffect, useRef, useMemo } = React;
 
-    // ─── NATIVE DIAGRAM COMPONENT (SYNTAX PATCHED) ────────────────────────────
+    // ─── UTILITY COMPONENTS ───────────────────────────────────────────────────
     function MermaidDiagram({ chart }) {
       const ref = useRef(null);
       useEffect(() => {
         if (ref.current && window.mermaid) {
           ref.current.removeAttribute('data-processed');
           ref.current.innerHTML = chart;
-          try { 
-            window.mermaid.init(undefined, ref.current); 
-          } catch (e) { 
-            console.error("Mermaid Render Error:", e); 
-          }
+          try { window.mermaid.init(undefined, ref.current); } catch (e) { console.error(e); }
         }
       }, [chart]);
       return (
@@ -39,7 +35,7 @@
       );
     }
 
-    // ─── MASTER QUESTION BANK (100% COMPLETE) ─────────────────────────────────
+    // ─── MASTER QUESTION BANK (100% COMPLETE - 85 Qs) ─────────────────────────
     const MODULES = [
       { id: "m1", title: "Digital Transformation & Business Drivers", tag: "MOD 1–2", color: "#0F4C81", accent: "#0076CE", questions: [ 
         { q: "Which modern data center characteristic allows IT to function as a utility by delivering resources based on a self-service model?", opts: ["Virtualization","Orchestrated management","IT-as-a-Service","On-demand scalability"], ans: 2, rationale: "IT-as-a-Service enables IT to function as a utility by adopting the resource delivery 'as-a-service' paradigm." }, 
@@ -146,7 +142,7 @@
 
     const ALL_QUESTIONS = MODULES.flatMap((m) => m.questions.map((q, i) => ({ ...q, moduleTag: m.tag, moduleAccent: m.accent, moduleId: m.id, qId: `${m.id}-${i}` })));
 
-    // ─── DEEP-DIVE STUDY NOTES (ALL 12 MODULES WITH SYNTAX PATCH) ─────────────
+    // ─── DEEP-DIVE STUDY NOTES (ALL 12 MODULES WITH ENHANCED DIAGRAMS) ────────
     const ENRICHED_STUDY_NOTES = [
       {
         id: "m1", title: "Digital Transformation & Business Drivers", tag: "MOD 1-2", color: "#0F4C81",
@@ -254,6 +250,27 @@
         ]
       },
       {
+        id: "m6", title: "Software-Defined Storage", tag: "MOD 8", color: "#F2A900",
+        diagram: `flowchart TD
+          subgraph sds [Software-Defined Storage]
+            CP[Control Plane - Policy/Provisioning] -->|APIs| DP[Data Plane]
+            DP --> Pool1[Commodity SSDs]
+            DP --> Pool2[Commodity HDDs]
+            DP --> Pool3[Cloud Storage]
+          end
+          classDef plain fill:transparent,stroke:#F2A900,stroke-width:2px,color:#fff;
+          class CP,DP,Pool1,Pool2,Pool3 plain;
+        `,
+        concepts: [
+          {
+            id: "m6c1", title: "SDS Core Principles",
+            eli5: "SDS is like a universal remote control. Instead of buying expensive, proprietary storage boxes from one vendor, you buy cheap, generic hard drives and use the 'universal remote' software to make them act like enterprise storage.",
+            expert: "Software-Defined Storage abstracts the control plane from the data plane. It pools heterogeneous storage resources (any vendor, any type) and automates allocation based on policy.",
+            takeaway: "SDS eliminates vendor lock-in and reduces hardware costs by relying on software intelligence instead of proprietary ASICs."
+          }
+        ]
+      },
+      {
         id: "m7", title: "Data Protection & Replication", tag: "MOD 9-10", color: "#E94560",
         concepts: [
           {
@@ -272,6 +289,16 @@
       },
       {
         id: "m8", title: "Security Architectures", tag: "MOD 11-12", color: "#FF5A00",
+        diagram: `flowchart LR
+          Prod[Production Data Center] -->|Air-Gapped Sync| Vault[Cyber Recovery Vault]
+          subgraph VaultEnv [Isolated Vault]
+            Vault --> Copy[Create PIT Copy]
+            Copy --> Lock[Apply WORM Lock]
+            Lock --> Scan[AI Malware Scan]
+          end
+          classDef plain fill:transparent,stroke:#FF5A00,stroke-width:2px,color:#fff;
+          class Prod,Vault,Copy,Lock,Scan plain;
+        `,
         concepts: [
           {
             id: "m8c1", title: "Advanced Cyber Recovery Vault",
@@ -283,9 +310,96 @@
       }
     ];
 
+    // ─── MASTER GLOSSARY (ALL 87 ACRONYMS FULLY RESTORED) ──────────────────────
     const GLOSSARY = {
       "Master Acronym Index": [
-        { term: "API", def: "Application Programming Interface" }, { term: "CDP", def: "Continuous Data Protection" }, { term: "CIA", def: "Confidentiality, Integrity, Availability" }, { term: "CIFS", def: "Common Internet File System" }, { term: "D@RE", def: "Data at Rest Encryption" }, { term: "DAS", def: "Direct-Attached Storage" }, { term: "DMZ", def: "Demilitarized Zone" }, { term: "FC", def: "Fibre Channel" }, { term: "FCIP", def: "Fibre Channel over IP" }, { term: "FCoE", def: "Fibre Channel over Ethernet" }, { term: "GRC", def: "Governance, Risk, and Compliance" }, { term: "HBA", def: "Host Bus Adapter" }, { term: "HCI", def: "Hyperconverged Infrastructure" }, { term: "HDD", def: "Hard Disk Drive" }, { term: "iSCSI", def: "Internet Small Computer System Interface" }, { term: "ISL", def: "Interswitch Link" }, { term: "ISS", def: "Intelligent Storage System" }, { term: "LUN", def: "Logical Unit Number" }, { term: "MTBF", def: "Mean Time Between Failure" }, { term: "NAS", def: "Network Attached Storage" }, { term: "NVMe", def: "Non-Volatile Memory express" }, { term: "OSD", def: "Object-Based Storage Device" }, { term: "RAID", def: "Redundant Array of Independent Disks" }, { term: "REST", def: "Representational State Transfer" }, { term: "RPO", def: "Recovery Point Objective" }, { term: "RTO", def: "Recovery Time Objective" }, { term: "SAN", def: "Storage Area Network" }, { term: "SCM", def: "Storage Class Memory" }, { term: "SDDC", def: "Software-Defined Data Center" }, { term: "SSD", def: "Solid-State Drive" }, { term: "VSAN", def: "Virtual Storage Area Network" }, { term: "WWN", def: "World Wide Name" }
+        { term: "API", def: "Application Programming Interface" },
+        { term: "ATA", def: "Advanced Technology Attachment" },
+        { term: "CD", def: "Compact Disc" },
+        { term: "CIA", def: "Confidentiality, Integrity, and Availability" },
+        { term: "CIAA", def: "Confidentiality, Integrity, Availability, and Accountability" },
+        { term: "CIFS", def: "Common Internet File System" },
+        { term: "CI", def: "Configuration Item / Converged Infrastructure" },
+        { term: "CMS", def: "Configuration Management System" },
+        { term: "D@RE", def: "Data at Rest Encryption" },
+        { term: "DAS", def: "Direct-Attached Storage" },
+        { term: "DMZ", def: "Demilitarized Zone" },
+        { term: "DVD", def: "Digital Versatile Disc" },
+        { term: "EUI", def: "Extended Unique Identifier" },
+        { term: "FC", def: "Fibre Channel" },
+        { term: "FCIP", def: "Fibre Channel over IP" },
+        { term: "FCoE", def: "Fibre Channel over Ethernet" },
+        { term: "FCP", def: "Fibre Channel Protocol" },
+        { term: "FTP", def: "File Transfer Protocol" },
+        { term: "GRC", def: "Governance, Risk, and Compliance" },
+        { term: "GUI", def: "Graphical User Interface" },
+        { term: "HBA", def: "Host Bus Adapter" },
+        { term: "HCI", def: "Hyperconverged Infrastructure" },
+        { term: "HDD", def: "Hard Disk Drive" },
+        { term: "HTTP", def: "Hypertext Transfer Protocol" },
+        { term: "IA", def: "Information Availability" },
+        { term: "IDC", def: "International Data Corporation" },
+        { term: "IDS", def: "Intrusion Detection System" },
+        { term: "IoT", def: "Internet of Things" },
+        { term: "IP", def: "Internet Protocol" },
+        { term: "IPS", def: "Intrusion Prevention System" },
+        { term: "IQN", def: "iSCSI Qualified Name" },
+        { term: "iSCSI", def: "Internet Small Computer System Interface" },
+        { term: "ISL", def: "Interswitch Link" },
+        { term: "ISS", def: "Intelligent Storage System" },
+        { term: "LAN", def: "Local Area Network" },
+        { term: "LUN", def: "Logical Unit Number" },
+        { term: "MAC", def: "Media Access Control" },
+        { term: "MRI", def: "Magnetic Resonance Imaging" },
+        { term: "MTBF", def: "Mean Time Between Failure" },
+        { term: "MTTR", def: "Mean Time To Repair" },
+        { term: "NAA", def: "Network Address Authority" },
+        { term: "NAS", def: "Network Attached Storage" },
+        { term: "NFS", def: "Network File System" },
+        { term: "NIC", def: "Network Interface Card" },
+        { term: "NQN", def: "NVMe Qualified Name" },
+        { term: "NVM", def: "Non-Volatile Memory" },
+        { term: "NVMe", def: "Non-Volatile Memory express" },
+        { term: "NVMe-oF", def: "NVMe over Fabrics" },
+        { term: "NVRAM", def: "Non-Volatile Random Access Memory" },
+        { term: "OS", def: "Operating System" },
+        { term: "OSD", def: "Object-Based Storage Device" },
+        { term: "OSI", def: "Open Systems Interconnection" },
+        { term: "PCIe", def: "Peripheral Component Interconnect Express" },
+        { term: "RAID", def: "Redundant Array of Independent Disks" },
+        { term: "RAM", def: "Random Access Memory" },
+        { term: "REST", def: "Representational State Transfer" },
+        { term: "RPO", def: "Recovery Point Objective" },
+        { term: "RTO", def: "Recovery Time Objective" },
+        { term: "SAN", def: "Storage Area Network" },
+        { term: "SAS", def: "Serial Attached SCSI" },
+        { term: "SATA", def: "Serial Advanced Technology Attachment" },
+        { term: "SCM", def: "Storage Class Memory" },
+        { term: "SCSI", def: "Small Computer System Interface" },
+        { term: "SDDC", def: "Software-Defined Data Center" },
+        { term: "SDN", def: "Software-Defined Networking" },
+        { term: "SDS", def: "Software-Defined Storage" },
+        { term: "SFSS", def: "SmartFabric Storage Software" },
+        { term: "SLA", def: "Service Level Agreement" },
+        { term: "SMB", def: "Server Message Block" },
+        { term: "SOAP", def: "Simple Object Access Protocol" },
+        { term: "SPOF", def: "Single Point of Failure" },
+        { term: "SRM", def: "Storage Resource Manager" },
+        { term: "SSD", def: "Solid-State Drive" },
+        { term: "SSL", def: "Secure Sockets Layer" },
+        { term: "TCP", def: "Transmission Control Protocol" },
+        { term: "TCP/IP", def: "Transmission Control Protocol/Internet Protocol" },
+        { term: "TOE", def: "TCP Offload Engine" },
+        { term: "USB", def: "Universal Serial Bus" },
+        { term: "VLAN", def: "Virtual Local Area Network" },
+        { term: "VM", def: "Virtual Machine" },
+        { term: "VSAN", def: "Virtual Storage Area Network" },
+        { term: "WAN", def: "Wide Area Network" },
+        { term: "WWN", def: "World Wide Name" },
+        { term: "WWNN", def: "World Wide Node Name" },
+        { term: "WWPN", def: "World Wide Port Name" },
+        { term: "XML", def: "Extensible Markup Language" },
+        { term: "ZB", def: "Zettabytes" }
       ],
       "RAID Quick Reference": [
         { term: "RAID 0", def: "Striping only. No fault tolerance. Write penalty: 0. Usable: 100%" },
@@ -324,34 +438,6 @@
           <div className="pomo-controls">
             <button onClick={toggleTimer}>{isActive ? "⏸" : "▶"}</button>
             <button onClick={resetTimer}>↺</button>
-          </div>
-        </div>
-      );
-    }
-
-    // ─── AUTONOMOUS COACH ENGINE ──────────────────────────────────────────────
-    function AdaptiveCoach({ scores, userXP }) {
-      const levelData = useMemo(() => {
-        if (userXP < 150) return { title: "Level 1: Novice", msg: "Welcome to the ISM Engine. The guide is defaulted to ELI5 (Beginner) mode. Pass quizzes or mark items as mastered to earn XP and unlock Dell EMC specific architectures.", color: "#8A9BBF", req: 150 };
-        if (userXP < 400) return { title: "Level 2: Practitioner", msg: "Excellent progress. You've proven basic proficiency. Architect-level nuances are now available in the Study Guide. Utilize the Smart Drill to prep for the exam.", color: "#00AEEF", req: 400 };
-        return { title: "Level 3: Storage Architect", msg: "Exceptional mastery detected. All Dell EMC expert-level architectures are unlocked and you are performing above the certification baseline. You are ready.", color: "#22C55E", req: 400, glow: true };
-      }, [userXP]);
-
-      const progressPct = userXP >= 400 ? 100 : Math.round((userXP / levelData.req) * 100);
-
-      return (
-        <div className={`coach-panel glass-panel ${levelData.glow ? 'glow' : ''}`}>
-          <div className="coach-icon">🧠</div>
-          <div className="coach-content">
-            <div className="coach-title-bar">
-              <div>
-                <div className="coach-sub">AUTONOMOUS LEARNING AI</div>
-                <div className="coach-rank" style={{color: levelData.color}}>{levelData.title}</div>
-              </div>
-              <div className="xp-badge">{userXP} XP</div>
-            </div>
-            <div className="coach-msg">{levelData.msg}</div>
-            <div className="xp-bar-bg"><div className="xp-bar-fill" style={{width: `${progressPct}%`, background: levelData.color}}></div></div>
           </div>
         </div>
       );
@@ -404,31 +490,56 @@
       );
     }
 
-    // ─── FLASHCARD COMPONENT (FOR RAPID MEMORIZATION) ─────────────────────────
-    function FlashcardDeck({ items }) {
+    // ─── SPACED REPETITION FLASHCARD COMPONENT ───────────────────────────────
+    function FlashcardDeck({ items, fcState, setFcState }) {
       const [index, setIndex] = useState(0);
       const [flipped, setFlipped] = useState(false);
 
-      const nextCard = () => { setFlipped(false); setTimeout(() => setIndex((index + 1) % items.length), 150); };
-      const prevCard = () => { setFlipped(false); setTimeout(() => setIndex((index - 1 + items.length) % items.length), 150); };
+      // Filter out cards the user has already marked as mastered
+      const activeCards = items.filter(item => fcState[item.term] !== 'mastered');
+      
+      if (activeCards.length === 0) {
+        return (
+          <div className="flashcard-container" style={{textAlign: 'center', padding: '40px'}}>
+            <h2 style={{color: '#22C55E'}}>🎉 All Acronyms Mastered!</h2>
+            <button className="btn-secondary" style={{marginTop: 20}} onClick={() => setFcState({})}>Reset Deck</button>
+          </div>
+        );
+      }
+
+      // Safeguard index
+      const safeIndex = index >= activeCards.length ? 0 : index;
+
+      const handleMark = (status) => {
+        setFlipped(false);
+        const currentTerm = activeCards[safeIndex].term;
+        setTimeout(() => {
+          setFcState(prev => ({ ...prev, [currentTerm]: status }));
+          setIndex(prev => prev >= activeCards.length - 1 ? 0 : prev);
+        }, 150);
+      };
 
       return (
         <div className="flashcard-container">
-          <div className="flashcard-progress">{index + 1} / {items.length}</div>
+          <div className="flashcard-progress">
+            <span style={{color: '#60A5FA'}}>{items.length - activeCards.length} Mastered</span> 
+            <span style={{margin: '0 12px'}}>|</span> 
+            {activeCards.length} Cards Remaining
+          </div>
           <div className={`flashcard ${flipped ? 'flipped' : ''}`} onClick={() => setFlipped(!flipped)}>
             <div className="flashcard-inner">
               <div className="flashcard-front">
                 <div className="fc-hint">Click to flip</div>
-                <div className="fc-term">{items[index].term}</div>
+                <div className="fc-term">{activeCards[safeIndex].term}</div>
               </div>
               <div className="flashcard-back">
-                <div className="fc-def">{items[index].def}</div>
+                <div className="fc-def">{activeCards[safeIndex].def}</div>
               </div>
             </div>
           </div>
           <div className="flashcard-actions">
-            <button className="btn-secondary" onClick={prevCard}>← Prev</button>
-            <button className="btn-primary" onClick={nextCard}>Next →</button>
+            <button className="btn-secondary" onClick={() => handleMark('review')} style={{color: '#FCA5A5', borderColor: 'rgba(239,68,68,0.3)'}}>✗ Review Later</button>
+            <button className="btn-secondary" onClick={() => handleMark('mastered')} style={{color: '#86EFAC', borderColor: 'rgba(34,197,94,0.3)'}}>✓ I Know This</button>
           </div>
         </div>
       );
@@ -443,16 +554,38 @@
       const [missedQuestions, setMissedQuestions] = useState(() => { try { const s = localStorage.getItem('ism_missed'); return s ? JSON.parse(s) : []; } catch { return []; } });
       const [guideProgress, setGuideProgress] = useState(() => { try { const s = localStorage.getItem('ism_guide_prog'); return s ? JSON.parse(s) : {}; } catch { return {}; } });
       const [questionStats, setQuestionStats] = useState(() => { try { const s = localStorage.getItem('ism_qstats'); return s ? JSON.parse(s) : {}; } catch { return {}; } });
+      const [fcState, setFcState] = useState(() => { try { const s = localStorage.getItem('ism_fcstate'); return s ? JSON.parse(s) : {}; } catch { return {}; } });
       
       useEffect(() => { localStorage.setItem('ism_scores', JSON.stringify(scores)); }, [scores]);
       useEffect(() => { localStorage.setItem('ism_missed', JSON.stringify(missedQuestions)); }, [missedQuestions]);
       useEffect(() => { localStorage.setItem('ism_guide_prog', JSON.stringify(guideProgress)); }, [guideProgress]);
       useEffect(() => { localStorage.setItem('ism_qstats', JSON.stringify(questionStats)); }, [questionStats]);
+      useEffect(() => { localStorage.setItem('ism_fcstate', JSON.stringify(fcState)); }, [fcState]);
 
-      // XP CALCULATION
-      const totalCorrect = Object.values(scores).reduce((a, s) => a + s.correct, 0);
-      const masteredCount = Object.keys(guideProgress).filter(k => guideProgress[k]).length;
-      const userXP = (totalCorrect * 10) + (masteredCount * 20);
+      // EXAM READINESS CALCULATOR
+      const calculateExamReadiness = () => {
+        const totalQs = ALL_QUESTIONS.length;
+        const correctQs = Object.values(scores).reduce((a, s) => a + s.correct, 0);
+        const quizPct = totalQs === 0 ? 0 : (correctQs / totalQs);
+
+        let totalConcepts = 0;
+        let masteredConcepts = 0;
+        ENRICHED_STUDY_NOTES.forEach(m => {
+          totalConcepts += m.concepts.length;
+          masteredConcepts += m.concepts.filter(c => guideProgress[c.id]).length;
+        });
+        const guidePct = totalConcepts === 0 ? 0 : (masteredConcepts / totalConcepts);
+
+        const totalFc = GLOSSARY["Master Acronym Index"].length;
+        const masteredFc = Object.values(fcState).filter(v => v === 'mastered').length;
+        const fcPct = totalFc === 0 ? 0 : (masteredFc / totalFc);
+
+        // Weighted Score: 40% Quizzes, 40% Guide Mastery, 20% Vocab
+        return Math.round((quizPct * 40) + (guidePct * 40) + (fcPct * 20));
+      };
+
+      const examReadiness = calculateExamReadiness();
+      const userXP = (Object.values(scores).reduce((a, s) => a + s.correct, 0) * 10) + (Object.keys(guideProgress).filter(k => guideProgress[k]).length * 20);
 
       // UI STATE
       const [activeGuideModule, setActiveGuideModule] = useState(ENRICHED_STUDY_NOTES[0]);
@@ -469,6 +602,7 @@
       const [glossarySearch, setGlossarySearch] = useState("");
 
       const totalAnswered = Object.values(scores).reduce((a, s) => a + (s.correct + s.wrong), 0);
+      const totalCorrect = Object.values(scores).reduce((a, s) => a + s.correct, 0);
 
       useEffect(() => { let interval; if (examActive) interval = setInterval(() => setExamTimer(t => t + 1), 1000); return () => clearInterval(interval); }, [examActive]);
       useEffect(() => {
@@ -552,12 +686,19 @@
           {/* ── DASHBOARD ── */}
           {view === "home" && (
             <div className="home fade-in">
-              <AdaptiveCoach scores={scores} userXP={userXP} />
+              <div className="readiness-panel glass-panel">
+                <div className="rp-left">
+                  <div className="rp-title">Overall Exam Readiness</div>
+                  <div className="rp-sub">Calculated via Quiz Accuracy, Concept Mastery, and Vocabulary Retention.</div>
+                </div>
+                <div className="rp-right">
+                  <div className="rp-score" style={{color: getGradeColor(examReadiness)}}>{examReadiness}%</div>
+                </div>
+              </div>
               
-              <div className="home-hero">
+              <div className="home-hero" style={{marginTop: 32}}>
                 <div className="hero-tag">DELL EMC &middot; ISM v5 &middot; AHEAD LAUNCH PROGRAM</div>
                 <h1 className="hero-title">Storage Infrastructure<br /><span>Certification Prep</span></h1>
-                <p className="hero-sub">The system automatically adjusts explanation complexity based on your XP. Utilize the Smart Drill and Flashcards to rapid-prep before the end of the month.</p>
               </div>
 
               <div className="stats-row">
@@ -567,7 +708,7 @@
                   <div className="stat-num" style={{color: totalAnswered ? (totalCorrect/totalAnswered >= 0.75 ? "#22C55E" : "#F59E0B") : "#0076CE"}}>
                     {totalAnswered ? `${Math.round((totalCorrect/totalAnswered)*100)}%` : "—"}
                   </div>
-                  <div className="stat-label">OVERALL SCORE</div>
+                  <div className="stat-label">QUIZ SCORE</div>
                 </div>
                 <div className="stat-card glass-panel"><div className="stat-num" style={{color: missedQuestions.length > 0 ? "#EF4444" : "#22C55E"}}>{missedQuestions.length}</div><div className="stat-label">MISSED</div></div>
               </div>
@@ -687,9 +828,9 @@
               <div className="home-hero" style={{textAlign: 'center', marginBottom: 40}}>
                 <div className="hero-tag">RAPID MEMORIZATION</div>
                 <h1 className="hero-title">Acronym & Concept <span>Flashcards</span></h1>
-                <p className="hero-sub" style={{margin: '0 auto'}}>Drill the 80+ Dell EMC acronyms required to pass the exam.</p>
+                <p className="hero-sub" style={{margin: '0 auto'}}>Drill the 87 Dell EMC acronyms required to pass the exam. Mastered cards will be removed from your active deck.</p>
               </div>
-              <FlashcardDeck items={GLOSSARY["Master Acronym Index"]} />
+              <FlashcardDeck items={GLOSSARY["Master Acronym Index"]} fcState={fcState} setFcState={setFcState} />
             </div>
           )}
 
@@ -756,7 +897,6 @@
               <div className="results-card glass-panel">
                 <div className="results-score" style={{color: getGradeColor(Math.round((sessionAnswers.filter(a=>a.correct).length / questions.length) * 100))}}>{Math.round((sessionAnswers.filter(a=>a.correct).length / questions.length) * 100)}%</div>
                 <div className="results-grade" style={{color: getGradeColor(Math.round((sessionAnswers.filter(a=>a.correct).length / questions.length) * 100))}}>SESSION COMPLETE</div>
-                <div style={{color: 'var(--muted)', marginBottom: 24}}>You earned {sessionAnswers.filter(a=>a.correct).length * 10} XP from this session!</div>
                 {quizMode !== "module" && <div style={{fontFamily:"'DM Mono', monospace", color:'#00AEEF', marginBottom:24}}>Time Elapsed: {formatTime(examTimer)}</div>}
               </div>
               <div className="action-row" style={{justifyContent: 'center', marginBottom: 40}}>
@@ -846,7 +986,7 @@
 
     /* FLASHCARDS */
     .flashcard-container { max-width: 600px; margin: 0 auto; perspective: 1000px; }
-    .flashcard-progress { text-align: center; font-family: 'DM Mono', monospace; color: var(--muted); margin-bottom: 16px; letter-spacing: 2px; }
+    .flashcard-progress { text-align: center; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 16px; letter-spacing: 2px; text-transform: uppercase; }
     .flashcard { width: 100%; height: 350px; cursor: pointer; position: relative; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
     .flashcard.flipped { transform: rotateY(180deg); }
     .flashcard-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
@@ -865,17 +1005,11 @@
     .hero-sub { color: var(--muted); font-size: 16px; line-height: 1.6; max-width: 580px; }
     .section-title { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); letter-spacing: 2px; margin-bottom: 20px; margin-top: 48px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
     
-    .coach-panel { padding: 24px; display: flex; align-items: flex-start; gap: 16px; margin-bottom: 40px; border-left: 4px solid var(--primary); position: relative; overflow: hidden; }
-    .coach-panel.glow { border-left-color: #22C55E; box-shadow: 0 0 30px rgba(34, 197, 94, 0.15); }
-    .coach-icon { font-size: 32px; line-height: 1; }
-    .coach-content { flex: 1; }
-    .coach-title-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-    .coach-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1.5px; margin-bottom: 4px; }
-    .coach-rank { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; }
-    .xp-badge { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 12px; color: #F59E0B; }
-    .coach-msg { font-size: 14px; line-height: 1.6; color: var(--muted); margin-bottom: 16px; }
-    .xp-bar-bg { height: 6px; background: rgba(0,0,0,0.4); border-radius: 3px; overflow: hidden; }
-    .xp-bar-fill { height: 100%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+    /* READINESS METER */
+    .readiness-panel { display: flex; align-items: center; justify-content: space-between; padding: 24px 32px; border-left: 4px solid var(--primary); margin-bottom: 40px; }
+    .rp-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: white; margin-bottom: 4px; }
+    .rp-sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+    .rp-score { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; line-height: 1; }
 
     .stats-row { display: flex; gap: 16px; margin-bottom: 40px; flex-wrap: wrap; }
     .stat-card { flex: 1; min-width: 140px; padding: 24px 20px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
@@ -989,7 +1123,7 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     @media (min-width: 768px) { .keyboard-hint { display: inline-block; font-size: 11px; color: rgba(255,255,255,0.5); margin-left: 12px; } }
     @media (max-width: 850px) { .guide-layout { flex-direction: column; padding: 24px 16px; } .guide-sidebar { width: 100%; position: static; display: flex; flex-wrap: wrap; gap: 8px; padding: 16px; } .sidebar-btn { width: auto; flex: 1; min-width: 140px; } }
-    @media (max-width: 600px) { .nav { padding: 0 16px; height: 80px; flex-wrap: wrap;} .nav-actions { margin-left: 0; width: 100%; display: flex; justify-content: flex-end; padding-bottom: 8px;} .home, .quiz-wrap, .glossary-wrap { padding: 32px 16px 80px; } .hero-title { font-size: 32px; } .stat-card { min-width: 120px; } .question-card { padding: 32px 24px; } .option-btn { padding: 14px 16px; min-height: 56px; gap: 12px; } .results-score { font-size: 64px; } .gloss-grid, .quick-ref-grid { grid-template-columns: 1fr; } .flashcard { height: 400px; } .fc-term { font-size: 28px; } }
+    @media (max-width: 600px) { .nav { padding: 0 16px; height: 80px; flex-wrap: wrap;} .nav-actions { margin-left: 0; width: 100%; display: flex; justify-content: flex-end; padding-bottom: 8px;} .home, .quiz-wrap, .glossary-wrap { padding: 32px 16px 80px; } .hero-title { font-size: 32px; } .stat-card { min-width: 120px; } .question-card { padding: 32px 24px; } .option-btn { padding: 14px 16px; min-height: 56px; gap: 12px; } .results-score { font-size: 64px; } .gloss-grid, .quick-ref-grid { grid-template-columns: 1fr; } .flashcard { height: 400px; } .fc-term { font-size: 28px; } .readiness-panel { flex-direction: column; text-align: center; gap: 16px; } }
   </style>
 </body>
 </html>
