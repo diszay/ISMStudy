@@ -18,14 +18,18 @@
   <script type="text/babel">
     const { useState, useEffect, useRef, useMemo } = React;
 
-    // ─── UTILITY COMPONENTS ───────────────────────────────────────────────────
+    // ─── NATIVE DIAGRAM COMPONENT (SYNTAX PATCHED) ────────────────────────────
     function MermaidDiagram({ chart }) {
       const ref = useRef(null);
       useEffect(() => {
         if (ref.current && window.mermaid) {
           ref.current.removeAttribute('data-processed');
           ref.current.innerHTML = chart;
-          try { window.mermaid.init(undefined, ref.current); } catch (e) { console.error(e); }
+          try { 
+            window.mermaid.init(undefined, ref.current); 
+          } catch (e) { 
+            console.error("Mermaid Render Error:", e); 
+          }
         }
       }, [chart]);
       return (
@@ -142,16 +146,16 @@
 
     const ALL_QUESTIONS = MODULES.flatMap((m) => m.questions.map((q, i) => ({ ...q, moduleTag: m.tag, moduleAccent: m.accent, moduleId: m.id, qId: `${m.id}-${i}` })));
 
-    // ─── DEEP-DIVE STUDY NOTES (PARSED DIRECTLY FROM DELL PDFs - ALL 12 MODS) ─
+    // ─── DEEP-DIVE STUDY NOTES (ALL 12 MODULES WITH SYNTAX PATCH) ─────────────
     const ENRICHED_STUDY_NOTES = [
       {
         id: "m1", title: "Digital Transformation & Business Drivers", tag: "MOD 1-2", color: "#0F4C81",
-        diagram: `graph TD;
-          subgraph Innovation Enablers
-            DT[Digital Transformation] --> CC[Cloud Computing];
-            DT --> BD[Big Data & Analytics];
-            DT --> IoT[IoT & Edge Computing];
-            DT --> AI[AI & Machine Learning];
+        diagram: `flowchart TD
+          subgraph env [Innovation Enablers]
+            DT[Digital Transformation] --> CC[Cloud Computing]
+            DT --> BD[Big Data & Analytics]
+            DT --> IoT[IoT & Edge Computing]
+            DT --> AI[AI & Machine Learning]
           end
           classDef plain fill:transparent,stroke:#0F4C81,stroke-width:2px,color:#fff;
           class DT,CC,BD,IoT,AI plain;
@@ -159,31 +163,31 @@
         concepts: [
           {
             id: "m1c1", title: "Data vs. Information",
-            eli5: "Data is like raw ingredients (flour, eggs, sugar). Information is the baked cake. You can't serve raw flour to the boss; you have to process it into a cake first so they can consume it.",
-            expert: "Data consists of raw facts (structured or unstructured) stored as binary values. Information is data that has been processed and analyzed to enable useful interpretation and strategic business decision-making.",
-            takeaway: "Storage systems don't just hold data; they must ensure data is highly available and performant enough to be processed into actionable information."
+            eli5: "Data is like raw ingredients (flour, eggs, sugar). Information is the baked cake. You can't serve raw flour to the boss; you have to process it into a cake first.",
+            expert: "Data consists of raw facts stored as binary values. Information is data that has been processed and analyzed to enable strategic business decision-making.",
+            takeaway: "Storage systems must ensure data is highly available and performant enough to be processed into actionable information."
           },
           {
             id: "m1c2", title: "Cloud Computing Essential Characteristics",
             eli5: "The Cloud is like renting a car instead of buying one. You get it instantly (On-Demand), drive it anywhere (Network Access), upgrade to an SUV if needed (Elasticity), and only pay for the miles driven (Measured Service).",
-            expert: "The NIST defines cloud computing through 5 essential characteristics: On-demand self-service (provisioning without human interaction), Broad network access, Resource pooling (multi-tenant model), Rapid elasticity (scaling commensurately with demand), and Measured service (metering/billing).",
+            expert: "The NIST defines cloud computing through 5 characteristics: On-demand self-service, Broad network access, Resource pooling, Rapid elasticity, and Measured service.",
             takeaway: "Without 'Measured Service' and a 'Self-Service Portal', you just have virtualization, not a true Cloud architecture."
           },
           {
             id: "m1c3", title: "Big Data & Edge Computing",
-            eli5: "If you have a billion thermometers sending data every second, your internet will crash. Edge computing puts a mini-brain right next to the thermometers to filter the junk and only send the important alerts to the main cloud.",
-            expert: "Big Data is defined by Volume, Velocity, and Variety. To handle extreme Velocity in IoT networks, Edge Computing performs analytics close to the data source (sensors/gateways) to drastically reduce bandwidth consumption and achieve ultra-low latency.",
-            takeaway: "Edge computing decentralizes processing to solve the bandwidth and latency bottlenecks inherent in massive IoT deployments."
+            eli5: "If you have a billion thermometers sending data, your internet will crash. Edge computing puts a mini-brain right next to the thermometers to filter the junk and only send important alerts to the cloud.",
+            expert: "To handle extreme Velocity in IoT networks, Edge Computing performs analytics close to the data source (sensors/gateways) to drastically reduce bandwidth consumption and achieve ultra-low latency.",
+            takeaway: "Edge computing decentralizes processing to solve the bandwidth bottlenecks inherent in massive IoT deployments."
           }
         ]
       },
       {
         id: "m2", title: "Modern Data Center Environment", tag: "MOD 3", color: "#00AEEF",
-        diagram: `graph TD;
-          subgraph Software-Defined Data Center (SDDC)
-            M[Management Plane: vCenter/APIs] --> C[Control Plane: Routing Logic];
-            C --> D[Data Plane: Hardware Forwarding];
-            D --> P[Physical Compute/Storage];
+        diagram: `flowchart TD
+          subgraph sddc [Software-Defined Data Center]
+            M[Management Plane: vCenter/APIs] --> C[Control Plane: Routing Logic]
+            C --> D[Data Plane: Hardware Forwarding]
+            D --> P[Physical Compute/Storage]
           end
           classDef plain fill:transparent,stroke:#00AEEF,stroke-width:2px,color:#fff;
           class M,C,D,P plain;
@@ -191,20 +195,20 @@
         concepts: [
           {
             id: "m2c1", title: "Software-Defined Data Center (SDDC) Planes",
-            eli5: "Think of an SDDC like a restaurant. The 'Management Plane' is the menu where you order. The 'Control Plane' is the Head Chef deciding how to cook it. The 'Data Plane' is the kitchen staff actually doing the physical work.",
-            expert: "SDDC abstracts hardware into logical planes. A 'Southbound API' connects the Control plane to the Data plane (hardware). A 'Northbound API' connects the Management plane to the Control plane. Bare-Metal hypervisors (Type 1) install directly on the hardware to facilitate this with minimal OS overhead.",
-            takeaway: "Decoupling allows centralized controllers to update multi-vendor hardware simultaneously without manual configuration."
+            eli5: "Think of an SDDC like a restaurant. The 'Management Plane' is the menu. The 'Control Plane' is the Head Chef deciding how to cook it. The 'Data Plane' is the kitchen staff actually doing the physical work.",
+            expert: "A 'Southbound API' connects the Control plane to the Data plane (hardware). A 'Northbound API' connects the Management plane to the Control plane. Bare-Metal hypervisors (Type 1) install directly on the hardware.",
+            takeaway: "Decoupling allows centralized controllers to update multi-vendor hardware simultaneously."
           },
           {
             id: "m2c2", title: "HCI vs. CI Environments",
             eli5: "Converged Infrastructure (CI) is buying a pre-built house. Hyperconverged Infrastructure (HCI) is buying standard LEGO blocks and letting software build the house for you dynamically.",
-            expert: "Converged Infrastructure (CI) is a hardware-defined, pre-packaged rack from specific vendors. Hyperconverged Infrastructure (HCI, e.g., Dell PowerFlex) pools standard commodity x86 servers using a software layer, completely abstracting compute and storage resources from the underlying PowerEdge chassis.",
+            expert: "CI is a hardware-defined, pre-packaged rack from specific vendors. HCI (e.g., Dell PowerFlex) pools standard commodity x86 servers using a software layer, abstracting compute and storage resources.",
             takeaway: "HCI provides massive scalability. You plug in another standard node, and the software balances the resources."
           },
           {
             id: "m2c3", title: "Virtual Machines vs. Containers",
-            eli5: "A Virtual Machine is like giving everyone their own separate house (full OS). A Container is like an apartment building where everyone shares the same plumbing and electricity (shared OS kernel).",
-            expert: "VMs use a hypervisor to abstract physical hardware, requiring a heavy guest OS. Containers (e.g., Docker) abstract the OS kernel itself. Containers are incredibly lightweight, boot in milliseconds, but lack the strict hardware-level fault isolation of VMs.",
+            eli5: "A Virtual Machine is like giving everyone their own separate house (full OS). A Container is like an apartment building where everyone shares the same plumbing (shared OS kernel).",
+            expert: "VMs use a hypervisor to abstract physical hardware, requiring a heavy guest OS. Containers (e.g., Docker) abstract the OS kernel itself. Containers boot in milliseconds but lack strict hardware-level fault isolation.",
             takeaway: "Containers are the foundation of Cloud-Native microservices because they are portable and scalable."
           }
         ]
@@ -214,23 +218,23 @@
         concepts: [
           {
             id: "m3c1", title: "Cache Vaulting & Write-Back",
-            eli5: "Write-Back cache is like taking a customer's money and saying 'Got it!' instantly, then putting it in the register later. It's fast, but dangerous if the power goes out before you put it in the register.",
-            expert: "Modern arrays exclusively use 'Write-Back' cache to eliminate disk latency. To prevent data loss during total power failure, ISS uses 'Cache Vaulting'. A battery keeps DRAM alive long enough to dump unwritten 'dirty' cache pages into an internal, non-volatile M.2 NVMe SSD (the Vault).",
+            eli5: "Write-Back cache is like taking a customer's money and saying 'Got it!' instantly, then putting it in the register later. It's fast, but dangerous if the power goes out before you put it away.",
+            expert: "Modern arrays exclusively use 'Write-Back' cache. To prevent data loss during power failure, ISS uses 'Cache Vaulting'. A battery keeps DRAM alive long enough to dump 'dirty' cache pages into a non-volatile M.2 NVMe SSD (the Vault).",
             takeaway: "Cache Vaulting guarantees zero data loss while allowing the array to operate at memory-speeds."
           },
           {
             id: "m3c2", title: "NVMe Protocol Overhaul",
             eli5: "SCSI is a one-lane dirt road for data. NVMe is a 65,000-lane superhighway built specifically for fast flash drives.",
-            expert: "Traditional SSDs were bottlenecked by SCSI/SATA protocols (1 queue, 32 commands). NVMe maps directly to the CPU's PCIe lanes, unlocking the massive parallel processing capabilities of flash. It supports up to 65,535 queues.",
+            expert: "Traditional SSDs were bottlenecked by SCSI/SATA protocols (1 queue, 32 commands). NVMe maps directly to the CPU's PCIe lanes, unlocking flash parallel processing. It supports up to 65,535 queues.",
             takeaway: "NVMe drops latency from milliseconds to microseconds by eliminating the SCSI translation overhead."
           }
         ]
       },
       {
         id: "m5", title: "SAN Connectivity", tag: "MOD 6-7", color: "#E03C71",
-        diagram: `graph LR;
-          S((Server HBA N_Port)) <-->|FLOGI/PLOGI| E[Edge Switch F_Port];
-          E <-->|ISL via E_Port| C[Core Switch E_Port];
+        diagram: `flowchart LR
+          S((Server HBA N_Port)) -->|FLOGI / PLOGI| E[Edge Switch F_Port]
+          E -->|ISL via E_Port| C[Core Switch E_Port]
           classDef plain fill:transparent,stroke:#E03C71,stroke-width:2px,color:#fff;
           class S,E,C plain;
         `,
@@ -238,13 +242,13 @@
           {
             id: "m5c1", title: "FC Fabric Login Sequence",
             eli5: "When a server plugs into a SAN, it does three things: Gets an IP address from the switch, shakes hands with the storage array, and agrees on what language to speak.",
-            expert: "A server executes 3 logins. 1) FLOGI (Fabric Login) to the switch's F_Port to receive its 24-bit FC Address. 2) PLOGI (Port Login) directly to the target array's N_Port to establish a session. 3) PRLI (Process Login) to exchange ULP (SCSI) capabilities.",
+            expert: "A server executes 3 logins. 1) FLOGI (Fabric Login) to the switch's F_Port to receive its 24-bit FC Address. 2) PLOGI (Port Login) directly to the target array's N_Port. 3) PRLI (Process Login) to exchange SCSI capabilities.",
             takeaway: "Switches must use E_Ports to communicate with each other to expand the fabric (ISL)."
           },
           {
             id: "m5c2", title: "FCoE & Lossless Ethernet",
             eli5: "FCoE lets you run storage traffic over a standard internet cable instead of a dedicated fiber optic cable, saving tons of money on wiring.",
-            expert: "FCoE encapsulates pure Fibre Channel frames directly into Ethernet frames. Because standard Ethernet is 'lossy', FCoE requires Converged Enhanced Ethernet (CEE). CEE uses Priority-based Flow Control (PFC) to pause specific traffic classes instead of dropping frames under congestion.",
+            expert: "FCoE encapsulates pure FC frames into Ethernet frames. Because standard Ethernet drops packets, FCoE requires Converged Enhanced Ethernet (CEE). CEE uses Priority-based Flow Control (PFC) to pause specific traffic classes.",
             takeaway: "FCoE allows one Converged Network Adapter (CNA) to handle both LAN and SAN traffic reliably."
           }
         ]
@@ -254,14 +258,14 @@
         concepts: [
           {
             id: "m7c1", title: "Snapshots: CoW vs RoW",
-            eli5: "Copy-on-Write (CoW) copies the old document before you write a new one. Redirect-on-Write (RoW) just gives you a blank sheet of paper and changes the index to point to the new sheet.",
-            expert: "Copy-on-Write (CoW) requires 3 I/Os for an update (Read original, Write original to snapshot pool, Write new data). Redirect-on-Write (RoW) requires only 1 I/O (Writes new data to a new block and updates the pointer).",
-            takeaway: "RoW offers significantly higher performance for write-intensive workloads because it avoids the 3-step I/O penalty."
+            eli5: "Copy-on-Write (CoW) copies the old document before you write a new one. Redirect-on-Write (RoW) just gives you a blank sheet of paper and changes the index pointer.",
+            expert: "Copy-on-Write requires 3 I/Os for an update (Read original, Write original to snapshot pool, Write new data). Redirect-on-Write requires only 1 I/O (Writes new data to a new block and updates the pointer).",
+            takeaway: "RoW offers significantly higher performance for write-intensive workloads."
           },
           {
             id: "m7c2", title: "Continuous Data Protection (CDP)",
             eli5: "Standard backups are like taking a photo every hour. CDP is like a security camera recording a video. You can rewind to any exact second.",
-            expert: "CDP relies on a 'Write Splitter' installed in the host or fabric. The Splitter duplicates every single write operation. One copy goes to primary storage, the other to the CDP Appliance which time-stamps it and stores it in a Journal volume.",
+            expert: "CDP relies on a 'Write Splitter' installed in the host or fabric. The Splitter duplicates every write operation. One copy goes to primary storage, the other to the CDP Appliance which time-stamps it and stores it in a Journal volume.",
             takeaway: "CDP enables microsecond recovery granularity, guaranteeing virtually zero RPO against ransomware."
           }
         ]
@@ -272,7 +276,7 @@
           {
             id: "m8c1", title: "Advanced Cyber Recovery Vault",
             eli5: "A Vault is a disconnected panic room. Even if hackers burn down your entire data center, the Vault stays hidden and safe with a pristine copy of your data.",
-            expert: "The vault operates on a 'Sync-Copy-Lock' mechanism. 1) Sync: Vault opens port and pulls data. 2) Copy: Generates a PIT copy inside the Vault. 3) Lock: Applies WORM (Write-Once-Read-Many) retention, making the copy cryptographically immutable so even compromised admins cannot delete it.",
+            expert: "The vault operates on a 'Sync-Copy-Lock' mechanism. 1) Sync: Vault opens port and pulls data. 2) Copy: Generates a PIT copy inside the Vault. 3) Lock: Applies WORM (Write-Once-Read-Many) retention, making the copy cryptographically immutable.",
             takeaway: "Air-gapping and WORM locks are the only guaranteed defense against targeted ransomware attacking backup catalogs."
           }
         ]
