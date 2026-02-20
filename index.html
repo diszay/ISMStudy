@@ -18,7 +18,7 @@
   <script type="text/babel">
     const { useState, useEffect, useRef, useMemo } = React;
 
-    // ─── UTILITY COMPONENTS ───────────────────────────────────────────────────
+    // ─── NATIVE DIAGRAM COMPONENT ─────────────────────────────────────────────
     function MermaidDiagram({ chart }) {
       const ref = useRef(null);
       useEffect(() => {
@@ -35,7 +35,7 @@
       );
     }
 
-    // ─── MASTER QUESTION BANK (100% COMPLETE - 85 Qs) ─────────────────────────
+    // ─── MASTER QUESTION BANK (85 Qs) ─────────────────────────────────────────
     const MODULES = [
       { id: "m1", title: "Digital Transformation & Business Drivers", tag: "MOD 1–2", color: "#0F4C81", accent: "#0076CE", questions: [ 
         { q: "Which modern data center characteristic allows IT to function as a utility by delivering resources based on a self-service model?", opts: ["Virtualization","Orchestrated management","IT-as-a-Service","On-demand scalability"], ans: 2, rationale: "IT-as-a-Service enables IT to function as a utility by adopting the resource delivery 'as-a-service' paradigm." }, 
@@ -142,7 +142,7 @@
 
     const ALL_QUESTIONS = MODULES.flatMap((m) => m.questions.map((q, i) => ({ ...q, moduleTag: m.tag, moduleAccent: m.accent, moduleId: m.id, qId: `${m.id}-${i}` })));
 
-    // ─── DEEP-DIVE STUDY NOTES (ALL 12 MODULES WITH ENHANCED DIAGRAMS) ────────
+    // ─── MASSIVELY EXPANDED ADAPTIVE STUDY NOTES (ALL 12 MODULES) ─────────────
     const ENRICHED_STUDY_NOTES = [
       {
         id: "m1", title: "Digital Transformation & Business Drivers", tag: "MOD 1-2", color: "#0F4C81",
@@ -170,7 +170,13 @@
             takeaway: "Without 'Measured Service' and a 'Self-Service Portal', you just have virtualization, not a true Cloud architecture."
           },
           {
-            id: "m1c3", title: "Big Data & Edge Computing",
+            id: "m1c3", title: "Cloud Service Models (IaaS, PaaS, SaaS)",
+            eli5: "IaaS is renting empty land. PaaS is renting a house frame where you paint the walls. SaaS is renting a fully furnished, ready-to-live-in house (like Netflix).",
+            expert: "IaaS (Infrastructure) provides compute, storage, and networking. PaaS (Platform) adds OS and runtime environments for developers. SaaS (Software) provides fully functioning consumer applications.",
+            takeaway: "The higher you go up the stack (towards SaaS), the less control the user has over the underlying infrastructure, but the faster the time-to-market."
+          },
+          {
+            id: "m1c4", title: "Big Data & Edge Computing",
             eli5: "If you have a billion thermometers sending data, your internet will crash. Edge computing puts a mini-brain right next to the thermometers to filter the junk and only send important alerts to the cloud.",
             expert: "To handle extreme Velocity in IoT networks, Edge Computing performs analytics close to the data source (sensors/gateways) to drastically reduce bandwidth consumption and achieve ultra-low latency.",
             takeaway: "Edge computing decentralizes processing to solve the bandwidth bottlenecks inherent in massive IoT deployments."
@@ -206,6 +212,12 @@
             eli5: "A Virtual Machine is like giving everyone their own separate house (full OS). A Container is like an apartment building where everyone shares the same plumbing (shared OS kernel).",
             expert: "VMs use a hypervisor to abstract physical hardware, requiring a heavy guest OS. Containers (e.g., Docker) abstract the OS kernel itself. Containers boot in milliseconds but lack strict hardware-level fault isolation.",
             takeaway: "Containers are the foundation of Cloud-Native microservices because they are portable and scalable."
+          },
+          {
+            id: "m2c4", title: "Virtual Provisioning (Thick vs Thin)",
+            eli5: "Thick provisioning is reserving a whole parking lot just for yourself, even if you only have one car. Thin provisioning lets anyone park there until the lot is actually full.",
+            expert: "Thick LUNs pre-allocate 100% of physical capacity upon creation. Thin LUNs only allocate physical blocks when data is actually written, relying on a shared storage pool.",
+            takeaway: "Thin provisioning dramatically improves storage utilization and reduces upfront hardware costs."
           }
         ]
       },
@@ -223,11 +235,23 @@
             eli5: "SCSI is a one-lane dirt road for data. NVMe is a 65,000-lane superhighway built specifically for fast flash drives.",
             expert: "Traditional SSDs were bottlenecked by SCSI/SATA protocols (1 queue, 32 commands). NVMe maps directly to the CPU's PCIe lanes, unlocking flash parallel processing. It supports up to 65,535 queues.",
             takeaway: "NVMe drops latency from milliseconds to microseconds by eliminating the SCSI translation overhead."
+          },
+          {
+            id: "m3c3", title: "RAID Penalties Explained",
+            eli5: "RAID protects data, but it makes the hard drives do extra math every time you save a file. Some RAID types do more math than others.",
+            expert: "RAID 1 (Mirroring) has a write penalty of 2. RAID 5 requires reading old data, old parity, calculating new parity, and writing both (Penalty of 4). RAID 6 calculates dual parity (Penalty of 6).",
+            takeaway: "Never use RAID 6 for extremely write-intensive databases due to the high I/O penalty."
+          },
+          {
+            id: "m3c4", title: "Storage Tiering (Sub-LUN)",
+            eli5: "Instead of keeping all your clothes in the premium front closet, you move the winter coats to the attic until you need them. Tiering moves 'hot' data to fast SSDs and 'cold' data to slow HDDs automatically.",
+            expert: "Sub-LUN tiering breaks a single LUN into chunks (extents). The array controller tracks access frequency. Hot extents are promoted to Tier-0 (SCM/NVMe) and cold extents are demoted to Tier-3 (SATA/Archive).",
+            takeaway: "Sub-LUN tiering optimizes performance for specific files within a volume without requiring manual data migration."
           }
         ]
       },
       {
-        id: "m5", title: "SAN Connectivity", tag: "MOD 6-7", color: "#E03C71",
+        id: "m5", title: "SAN Connectivity & Convergence", tag: "MOD 6-7", color: "#E03C71",
         diagram: `flowchart LR
           S((Server HBA N_Port)) -->|FLOGI / PLOGI| E[Edge Switch F_Port]
           E -->|ISL via E_Port| C[Core Switch E_Port]
@@ -242,31 +266,22 @@
             takeaway: "Switches must use E_Ports to communicate with each other to expand the fabric (ISL)."
           },
           {
-            id: "m5c2", title: "FCoE & Lossless Ethernet",
+            id: "m5c2", title: "SAN Zoning",
+            eli5: "Zoning is like creating VIP rooms in a club. Even if two servers are plugged into the same switch, they cannot talk to each other unless they are in the same zone.",
+            expert: "Zoning restricts communication to specific node ports. WWN Zoning uses the 64-bit World Wide Name (flexible). Port Zoning uses the physical switch port (rigid but highly secure).",
+            takeaway: "Zoning limits the blast radius of RSCN (Registered State Change Notification) broadcasts, stabilizing the fabric when devices reboot."
+          },
+          {
+            id: "m5c3", title: "FCoE & Lossless Ethernet",
             eli5: "FCoE lets you run storage traffic over a standard internet cable instead of a dedicated fiber optic cable, saving tons of money on wiring.",
             expert: "FCoE encapsulates pure FC frames into Ethernet frames. Because standard Ethernet drops packets, FCoE requires Converged Enhanced Ethernet (CEE). CEE uses Priority-based Flow Control (PFC) to pause specific traffic classes.",
             takeaway: "FCoE allows one Converged Network Adapter (CNA) to handle both LAN and SAN traffic reliably."
-          }
-        ]
-      },
-      {
-        id: "m6", title: "Software-Defined Storage", tag: "MOD 8", color: "#F2A900",
-        diagram: `flowchart TD
-          subgraph sds [Software-Defined Storage]
-            CP[Control Plane - Policy/Provisioning] -->|APIs| DP[Data Plane]
-            DP --> Pool1[Commodity SSDs]
-            DP --> Pool2[Commodity HDDs]
-            DP --> Pool3[Cloud Storage]
-          end
-          classDef plain fill:transparent,stroke:#F2A900,stroke-width:2px,color:#fff;
-          class CP,DP,Pool1,Pool2,Pool3 plain;
-        `,
-        concepts: [
+          },
           {
-            id: "m6c1", title: "SDS Core Principles",
-            eli5: "SDS is like a universal remote control. Instead of buying expensive, proprietary storage boxes from one vendor, you buy cheap, generic hard drives and use the 'universal remote' software to make them act like enterprise storage.",
-            expert: "Software-Defined Storage abstracts the control plane from the data plane. It pools heterogeneous storage resources (any vendor, any type) and automates allocation based on policy.",
-            takeaway: "SDS eliminates vendor lock-in and reduces hardware costs by relying on software intelligence instead of proprietary ASICs."
+            id: "m5c4", title: "VSANs (Virtual SANs)",
+            eli5: "A VSAN takes one giant physical network switch and logically slices it into multiple smaller, private switches.",
+            expert: "A VSAN creates logically isolated fabrics on the same physical infrastructure. Each VSAN has its own naming server, zoning database, and fabric services.",
+            takeaway: "VSANs provide security isolation and administrative separation without requiring additional physical hardware."
           }
         ]
       },
@@ -274,21 +289,33 @@
         id: "m7", title: "Data Protection & Replication", tag: "MOD 9-10", color: "#E94560",
         concepts: [
           {
-            id: "m7c1", title: "Snapshots: CoW vs RoW",
+            id: "m7c1", title: "RPO vs. RTO",
+            eli5: "RPO is 'how much data can we lose?'. RTO is 'how fast do we need the servers back on?'.",
+            expert: "Recovery Point Objective (RPO) dictates the maximum acceptable data loss (e.g., 4 hours). Recovery Time Objective (RTO) dictates the maximum acceptable downtime.",
+            takeaway: "Synchronous replication guarantees Zero RPO. Fault tolerance (Clustering) drastically reduces RTO."
+          },
+          {
+            id: "m7c2", title: "Snapshots: CoW vs RoW",
             eli5: "Copy-on-Write (CoW) copies the old document before you write a new one. Redirect-on-Write (RoW) just gives you a blank sheet of paper and changes the index pointer.",
             expert: "Copy-on-Write requires 3 I/Os for an update (Read original, Write original to snapshot pool, Write new data). Redirect-on-Write requires only 1 I/O (Writes new data to a new block and updates the pointer).",
             takeaway: "RoW offers significantly higher performance for write-intensive workloads."
           },
           {
-            id: "m7c2", title: "Continuous Data Protection (CDP)",
+            id: "m7c3", title: "Continuous Data Protection (CDP)",
             eli5: "Standard backups are like taking a photo every hour. CDP is like a security camera recording a video. You can rewind to any exact second.",
             expert: "CDP relies on a 'Write Splitter' installed in the host or fabric. The Splitter duplicates every write operation. One copy goes to primary storage, the other to the CDP Appliance which time-stamps it and stores it in a Journal volume.",
             takeaway: "CDP enables microsecond recovery granularity, guaranteeing virtually zero RPO against ransomware."
+          },
+          {
+            id: "m7c4", title: "Deduplication (Source vs Target)",
+            eli5: "Deduplication stops you from saving the same meme 50 times. Source-based deletes the duplicates before sending it over the internet. Target-based deletes it after it arrives.",
+            expert: "Source-based deduplication hashes and checks data on the host client, drastically reducing network bandwidth (ideal for ROBO/Cloud). Target-based deduplication processes data at the backup appliance (ideal when host CPU is constrained).",
+            takeaway: "Source-based dedup saves bandwidth; target-based saves client CPU cycles."
           }
         ]
       },
       {
-        id: "m8", title: "Security Architectures", tag: "MOD 11-12", color: "#FF5A00",
+        id: "m8", title: "Security & Operations Management", tag: "MOD 11-12", color: "#FF5A00",
         diagram: `flowchart LR
           Prod[Production Data Center] -->|Air-Gapped Sync| Vault[Cyber Recovery Vault]
           subgraph VaultEnv [Isolated Vault]
@@ -305,12 +332,30 @@
             eli5: "A Vault is a disconnected panic room. Even if hackers burn down your entire data center, the Vault stays hidden and safe with a pristine copy of your data.",
             expert: "The vault operates on a 'Sync-Copy-Lock' mechanism. 1) Sync: Vault opens port and pulls data. 2) Copy: Generates a PIT copy inside the Vault. 3) Lock: Applies WORM (Write-Once-Read-Many) retention, making the copy cryptographically immutable.",
             takeaway: "Air-gapping and WORM locks are the only guaranteed defense against targeted ransomware attacking backup catalogs."
+          },
+          {
+            id: "m8c2", title: "IAM: OAuth & OpenID",
+            eli5: "OpenID is a bouncer checking your ID. OAuth is a valet ticket—it lets the valet drive your car without giving them the keys to your house.",
+            expert: "OpenID Connect is an authentication protocol (verifying identity). OAuth 2.0 is an authorization framework allowing third-party applications to obtain limited access (via scoped access tokens) to an HTTP service without exposing user credentials.",
+            takeaway: "Modern API-driven infrastructures rely on OAuth for secure, delegated access management."
+          },
+          {
+            id: "m8c3", title: "Role-Based Access Control (RBAC)",
+            eli5: "Instead of giving John keys to the server room, you create a 'Janitor' role and give the role the keys. If John quits, you just remove him from the Janitor role.",
+            expert: "RBAC enforces the principle of least privilege. Permissions are assigned to specific roles, and users are mapped to those roles. It strictly enforces the 'Separation of Duties'.",
+            takeaway: "No single user should be able to both initiate and execute a destructive action (like formatting a LUN)."
+          },
+          {
+            id: "m8c4", title: "Capacity & Performance Management",
+            eli5: "Capacity management is buying a larger hard drive before you run out of space. Performance management is making sure the hard drive spins fast enough.",
+            expert: "Capacity management utilizes predictive analytics to forecast resource exhaustion, preventing outages. Performance management analyzes I/O bottlenecks and latency to ensure SLAs are continuously met.",
+            takeaway: "Modern operations management shifts from reactive 'alerting' to proactive 'trending'."
           }
         ]
       }
     ];
 
-    // ─── MASTER GLOSSARY (ALL 87 ACRONYMS FULLY RESTORED) ──────────────────────
+    // ─── MASTER GLOSSARY (ALL 87 ACRONYMS FULLY RESTORED & SPLIT) ──────────────
     const GLOSSARY = {
       "Master Acronym Index": [
         { term: "API", def: "Application Programming Interface" },
@@ -400,13 +445,6 @@
         { term: "WWPN", def: "World Wide Port Name" },
         { term: "XML", def: "Extensible Markup Language" },
         { term: "ZB", def: "Zettabytes" }
-      ],
-      "RAID Quick Reference": [
-        { term: "RAID 0", def: "Striping only. No fault tolerance. Write penalty: 0. Usable: 100%" },
-        { term: "RAID 1", def: "Mirroring. Survives 1 failure. Write penalty: 2. Usable: 50%" },
-        { term: "RAID 5", def: "Striping + 1 parity. Survives 1 failure. Write penalty: 4. Usable: [(n-1)/n]×100. Min disks: 3" },
-        { term: "RAID 6", def: "Striping + 2 parity. Survives 2 failures. Write penalty: 6. Usable: [(n-2)/n]×100. Min disks: 4" },
-        { term: "RAID 1+0", def: "Mirrored stripes. Survives 1 per mirror pair. Write penalty: 2. Usable: 50%. Min disks: 4" }
       ]
     };
 
@@ -438,6 +476,34 @@
           <div className="pomo-controls">
             <button onClick={toggleTimer}>{isActive ? "⏸" : "▶"}</button>
             <button onClick={resetTimer}>↺</button>
+          </div>
+        </div>
+      );
+    }
+
+    // ─── AUTONOMOUS COACH ENGINE ──────────────────────────────────────────────
+    function AdaptiveCoach({ scores, userXP }) {
+      const levelData = useMemo(() => {
+        if (userXP < 150) return { title: "Level 1: Novice", msg: "Welcome to the ISM Engine. The guide is defaulted to ELI5 (Beginner) mode. Pass quizzes or mark items as mastered to earn XP and unlock Dell EMC specific architectures.", color: "#8A9BBF", req: 150 };
+        if (userXP < 400) return { title: "Level 2: Practitioner", msg: "Excellent progress. You've proven basic proficiency. Architect-level nuances are now available in the Study Guide. Utilize the Smart Drill to prep for the exam.", color: "#00AEEF", req: 400 };
+        return { title: "Level 3: Storage Architect", msg: "Exceptional mastery detected. All Dell EMC expert-level architectures are unlocked and you are performing above the certification baseline. You are ready.", color: "#22C55E", req: 400, glow: true };
+      }, [userXP]);
+
+      const progressPct = userXP >= 400 ? 100 : Math.round((userXP / levelData.req) * 100);
+
+      return (
+        <div className={`coach-panel glass-panel ${levelData.glow ? 'glow' : ''}`}>
+          <div className="coach-icon">🧠</div>
+          <div className="coach-content">
+            <div className="coach-title-bar">
+              <div>
+                <div className="coach-sub">AUTONOMOUS LEARNING AI</div>
+                <div className="coach-rank" style={{color: levelData.color}}>{levelData.title}</div>
+              </div>
+              <div className="xp-badge">{userXP} XP</div>
+            </div>
+            <div className="coach-msg">{levelData.msg}</div>
+            <div className="xp-bar-bg"><div className="xp-bar-fill" style={{width: `${progressPct}%`, background: levelData.color}}></div></div>
           </div>
         </div>
       );
@@ -490,32 +556,39 @@
       );
     }
 
-    // ─── SPACED REPETITION FLASHCARD COMPONENT ───────────────────────────────
+    // ─── SPACED REPETITION FLASHCARD COMPONENT (FIXED INDEX BUG) ──────────────
     function FlashcardDeck({ items, fcState, setFcState }) {
       const [index, setIndex] = useState(0);
       const [flipped, setFlipped] = useState(false);
 
-      // Filter out cards the user has already marked as mastered
+      // Filter out mastered cards
       const activeCards = items.filter(item => fcState[item.term] !== 'mastered');
       
       if (activeCards.length === 0) {
         return (
           <div className="flashcard-container" style={{textAlign: 'center', padding: '40px'}}>
-            <h2 style={{color: '#22C55E'}}>🎉 All Acronyms Mastered!</h2>
-            <button className="btn-secondary" style={{marginTop: 20}} onClick={() => setFcState({})}>Reset Deck</button>
+            <h2 style={{color: '#22C55E'}}>🎉 All 87 Acronyms Mastered!</h2>
+            <button className="btn-secondary" style={{marginTop: 20, margin: '20px auto'}} onClick={() => {if(confirm("Reset all flashcards?")) setFcState({})}}>↺ Reset Deck</button>
           </div>
         );
       }
 
-      // Safeguard index
+      // Safeguard index if array shrinks
       const safeIndex = index >= activeCards.length ? 0 : index;
+
+      const nextCard = () => { setFlipped(false); setTimeout(() => setIndex((safeIndex + 1) % activeCards.length), 150); };
+      const prevCard = () => { setFlipped(false); setTimeout(() => setIndex((safeIndex - 1 + activeCards.length) % activeCards.length), 150); };
 
       const handleMark = (status) => {
         setFlipped(false);
         const currentTerm = activeCards[safeIndex].term;
         setTimeout(() => {
           setFcState(prev => ({ ...prev, [currentTerm]: status }));
-          setIndex(prev => prev >= activeCards.length - 1 ? 0 : prev);
+          // If review later, manually advance index so they see the next card
+          if (status === 'review') {
+            setIndex(prev => (prev + 1) % activeCards.length);
+          }
+          // If mastered, the array shrinks by 1. The next item shifts into the current safeIndex, so no need to increment index.
         }, 150);
       };
 
@@ -523,8 +596,8 @@
         <div className="flashcard-container">
           <div className="flashcard-progress">
             <span style={{color: '#60A5FA'}}>{items.length - activeCards.length} Mastered</span> 
-            <span style={{margin: '0 12px'}}>|</span> 
-            {activeCards.length} Cards Remaining
+            <span style={{margin: '0 12px', color: 'rgba(255,255,255,0.2)'}}>|</span> 
+            {activeCards.length} Remaining
           </div>
           <div className={`flashcard ${flipped ? 'flipped' : ''}`} onClick={() => setFlipped(!flipped)}>
             <div className="flashcard-inner">
@@ -537,9 +610,18 @@
               </div>
             </div>
           </div>
+          
           <div className="flashcard-actions">
-            <button className="btn-secondary" onClick={() => handleMark('review')} style={{color: '#FCA5A5', borderColor: 'rgba(239,68,68,0.3)'}}>✗ Review Later</button>
-            <button className="btn-secondary" onClick={() => handleMark('mastered')} style={{color: '#86EFAC', borderColor: 'rgba(34,197,94,0.3)'}}>✓ I Know This</button>
+            <button className="btn-secondary" onClick={prevCard} style={{padding: '12px', minWidth: 0}}>←</button>
+            <button className="btn-secondary" onClick={() => handleMark('review')} style={{color: '#FCA5A5', borderColor: 'rgba(239,68,68,0.3)', flex: 1}}>✗ Needs Review</button>
+            <button className="btn-secondary" onClick={() => handleMark('mastered')} style={{color: '#86EFAC', borderColor: 'rgba(34,197,94,0.3)', flex: 1}}>✓ Mastered</button>
+            <button className="btn-primary" onClick={nextCard} style={{padding: '12px', minWidth: 0}}>→</button>
+          </div>
+
+          <div style={{textAlign: 'center', marginTop: 32}}>
+            <button className="nav-tab" style={{color: 'var(--muted)', background: 'transparent'}} onClick={() => { if(confirm("Bring back all mastered cards?")) setFcState({}); }}>
+              ↺ Reset All Flashcards
+            </button>
           </div>
         </div>
       );
@@ -818,6 +900,13 @@
                     />
                   ))}
                 </div>
+
+                <div style={{marginTop: 40, textAlign: 'center'}}>
+                  <button className="nav-tab" style={{color: 'var(--muted)', background: 'transparent'}} onClick={() => { if(confirm("Reset guide progress?")) setGuideProgress({}); }}>
+                    ↺ Reset Module Mastery
+                  </button>
+                </div>
+
               </div>
             </div>
           )}
@@ -897,6 +986,7 @@
               <div className="results-card glass-panel">
                 <div className="results-score" style={{color: getGradeColor(Math.round((sessionAnswers.filter(a=>a.correct).length / questions.length) * 100))}}>{Math.round((sessionAnswers.filter(a=>a.correct).length / questions.length) * 100)}%</div>
                 <div className="results-grade" style={{color: getGradeColor(Math.round((sessionAnswers.filter(a=>a.correct).length / questions.length) * 100))}}>SESSION COMPLETE</div>
+                <div style={{color: 'var(--muted)', marginBottom: 24}}>You earned {sessionAnswers.filter(a=>a.correct).length * 10} XP from this session!</div>
                 {quizMode !== "module" && <div style={{fontFamily:"'DM Mono', monospace", color:'#00AEEF', marginBottom:24}}>Time Elapsed: {formatTime(examTimer)}</div>}
               </div>
               <div className="action-row" style={{justifyContent: 'center', marginBottom: 40}}>
